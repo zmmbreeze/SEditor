@@ -1,4 +1,6 @@
 /**
+ * Event class
+ *
  * @author mzhou
  *
  */
@@ -76,4 +78,4 @@ var Event = (function() {
     };
 
     return Event;
-});
+})();

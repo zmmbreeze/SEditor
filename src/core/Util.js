@@ -104,7 +104,7 @@ var Util = (function() {
      *                            如果key是Map，且有val，则val是搜索key的正则，例如：/<([^<>]+)>\/g
      * @return {string} 替换成功后的值
      */
-    Util.format = function(tmpl, _key, _val) {
+    Klass.format = function(tmpl, _key, _val) {
         if (!_key) {
             return tmpl;
         }
@@ -124,4 +124,4 @@ var Util = (function() {
     };
 
     return Klass;
-});
+})();
