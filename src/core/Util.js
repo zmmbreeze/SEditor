@@ -123,5 +123,23 @@ var Util = (function() {
         }
     };
 
+
+    /**
+     * 暂时缓存函数的执行，直到1秒之后执行
+     * 用于限制短间隔内频繁调用
+     * @param {function} func
+     * @param {number} timeout
+     * @return {function} 新函数
+     */
+    Klass.buffer = function(func, timeout) {
+        var t;
+        return function() {
+            if (t) {
+                clearTimeout(t);
+            }
+            t = setTimeout(func, timeout || 500);
+        };
+    };
+
     return Klass;
 })();

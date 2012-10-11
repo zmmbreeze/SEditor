@@ -12,6 +12,17 @@ var SEditor = (function() {
     //@import "core/Event.js";
 
     var UUID = 0,
+        /**
+         * new SEditor();
+         *
+         * @param {string} selector textarea's jquery selector
+         * @param {object} option
+         *                      changeTimeout
+         *                      wrapHtml
+         *                      viewHtml
+         *                      linkHtml
+         *
+         */
         Klass = Event.$extend(function(supr, selector, option) {
             this.$text = $(selector);
             if (!this.$text[0]) {
@@ -76,7 +87,7 @@ var SEditor = (function() {
             wrapHtml, viewHtml, linkHtml;
         self._UUID();
         // load html
-        wrapHtml = self.option.wraphtml || '<div id="{v}" class="gui-seditor"></div>',
+        wrapHtml = self.option.wrapHtml || '<div id="{v}" class="gui-seditor"></div>',
         viewHtml = self.option.viewHtml || '<div class="gui-seditor-view"></div>',
         linkHtml = self.option.linkHtml || '<div class="gui-seditor-links"></div>';
         self.$text.wrap(Util.format(wrapHtml, self.id));
@@ -101,15 +112,17 @@ var SEditor = (function() {
     });
 
     Klass.$methods('_bindTextChangeEvent', function() {
-        var self = this;
-        if (window.addEventListener) {
-            self.$text[0].addEventListener('input', function() {
+        var self = this,
+            fireChange = Util.buffer(function() {
                 self.fire('seditorChange', self);
-            }, false);
+            }, self.option.changeTimeout || 250);
+
+        if (window.addEventListener) {
+            self.$text[0].addEventListener('input', fireChange, false);
         } else if (window.attachEvent) {
             self.$text[0].attachEvent('onpropertychange', function() {
                 if (window.event.propertyName == 'value') {
-                    self.fire('seditorChange', self);
+                    fireChange();
                 }
             });
         }
