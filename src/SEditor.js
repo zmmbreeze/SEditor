@@ -31,9 +31,11 @@ var SEditor = (function() {
             this.option = option || {};
             this._loadHtml();
             this._loadAllPlugin();
-            this.parser = new UBB();
+            this.parser = new this.constructor.UBB();
             this.textApi = new TextApi(this.$text[0]);
         });
+
+    Klass.UBB = UBB;
 
     Klass.$statics('usePlugin', function(supr, name, plugin) {
         if (!this.plugins) {
@@ -42,12 +44,20 @@ var SEditor = (function() {
         }
         this.plugins[name] = plugin;
         this.pluginsOrder.push(name);
+        this.UBB.addTag(name, plugin.parser);
         return this;
     });
 
     Klass.$statics('removePlugin', function(supr, name) {
         if (this.plugins) {
             delete this.plugins[name];
+            var pluginsOrder = this.pluginsOrder;
+            for (var i=0,l=pluginsOrder.length; i<l; i++) {
+                if (pluginsOrder[i] === name) {
+                    pluginsOrder.splice(i, 1);
+                }
+            }
+            this.UBB.removeTag(name);
         }
         return this;
     });
@@ -100,9 +110,9 @@ var SEditor = (function() {
         self.$links.delegate('a[data-operation]', 'click', function(e) {
             var $this = $(this),
                 pluginName = $this.data('operation').slice(7),
-                plugin = self.constructor.plugins[name];
-            if (plugin && plugin.onClick) {
-                plugin.onClick.call(this, self, e);
+                plugin = self.constructor.plugins[pluginName];
+            if (plugin && plugin.click) {
+                plugin.click.call(this, self, e);
             }
         });
         self._bindTextChangeEvent();
@@ -161,4 +171,7 @@ var SEditor = (function() {
 
     return Klass;
 })();
+
+//@import "plugin/bold.js";
+//@import "plugin/italic.js";
 

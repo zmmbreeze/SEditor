@@ -6,15 +6,17 @@
 </head>
 <body>
     <textarea id="editor" name="" rows="10" cols="30"></textarea>
-    <script src="/src/jquery.1.6.4.js"></script>
-    <script src="/src/core/UBB.js"></script>
-    <script src="/src/core/TextApi.js"></script>
-    <script src="/src/core/Proto.js"></script>
-    <script src="/src/core/Util.js"></script>
-    <script src="/src/core/Event.js"></script>
-    <script src="/src/SEditor.js"></script>
+    <script src="./src/jquery.1.6.4.js"></script>
+    <script src="./src/core/UBB.js"></script>
+    <script src="./src/core/TextApi.js"></script>
+    <script src="./src/core/Proto.js"></script>
+    <script src="./src/core/Util.js"></script>
+    <script src="./src/core/Event.js"></script>
+    <script src="./src/SEditor.js"></script>
+    <script src="./src/plugin/bold.js"></script>
+    <script src="./src/plugin/italic.js"></script>
     <script>
-    new SEditor('#editor');
+        var e = new SEditor('#editor');
     </script>
 </body>
 </html>
