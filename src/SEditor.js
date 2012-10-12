@@ -30,6 +30,7 @@ var SEditor = (function() {
             }
             this.option = option || {};
             this._loadHtml();
+            this._bindEvents();
             this._loadAllPlugin();
             this.parser = new this.constructor.UBB();
             this.textApi = new TextApi(this.$text[0]);
@@ -44,7 +45,9 @@ var SEditor = (function() {
         }
         this.plugins[name] = plugin;
         this.pluginsOrder.push(name);
-        this.UBB.addTag(name, plugin.parser);
+        if (plugin.parser) {
+            this.UBB.addTag(name, plugin.parser);
+        }
         return this;
     });
 
@@ -63,7 +66,7 @@ var SEditor = (function() {
     });
 
     Klass.$methods('focus', function(supr) {
-        this.$text.focus();
+        this.textApi.insertCaret();
         return this;
     });
 
@@ -76,12 +79,35 @@ var SEditor = (function() {
         }
     });
 
+    Klass.$methods('width', function(supr, width) {
+        if (width == null) {
+            return this.$text.width();
+        } else {
+            this.fire('seditorWidthChange', width);
+            this.$text.width(width);
+            return this;
+        }
+    });
+
+    Klass.$methods('height', function(supr, height) {
+        if (height == null) {
+            return this.$text.height();
+        } else {
+            this.fire('seditorHeightChange', height);
+            this.$text.height(height);
+            return this;
+        }
+    });
+
     Klass.$methods('remove', function(supr) {
         // fire event for plugins
         this.fire('seditorRemove', this);
         // reset html
         this.$text.detach();
         this.$all.replaceWith(this.$text);
+        if (this._recover.resize !== 'none') {
+            this.$text.css('resize', this._recover.resize);
+        }
         // release
         this.$text = null;
         this.$view = null;
@@ -90,23 +116,39 @@ var SEditor = (function() {
         this.option = null;
         this.parser = null;
         this.textApi = null;
+        this._recover = null;
     });
 
     Klass.$methods('_loadHtml', function(supr) {
         var self = this,
-            wrapHtml, viewHtml, linkHtml;
+            option = self.option,
+            wrapHtml, linkHtml;
         self._UUID();
+
         // load html
-        wrapHtml = self.option.wrapHtml || '<div id="{v}" class="gui-seditor"></div>',
-        viewHtml = self.option.viewHtml || '<div class="gui-seditor-view"></div>',
-        linkHtml = self.option.linkHtml || '<div class="gui-seditor-links"></div>';
+        wrapHtml = option.wrapHtml || '<div id="{v}" class="gui-seditor"></div>',
+        linkHtml = option.linkHtml || '<div class="gui-seditor-links"></div>';
         self.$text.wrap(Util.format(wrapHtml, self.id));
         self.$all = self.$text.parent();
-        self.$links = $(viewHtml);
+        self.$all.css('position', 'relative');
+        self.$links = $(linkHtml);
         self.$text.before(self.$links);
-        self.$view = $(viewHtml);
-        self.$text.after(self.$view);
-        // bind events
+
+        // change resize for textarea
+        self._recover = {};
+        self._recover.resize = self.$text.css('resize');
+        if (self._recover.resize !== 'none') {
+            self.$text.css('resize', 'none');
+        }
+    });
+
+    Klass.$methods('_bindEvents', function() {
+        var self = this,
+            fireChange = Util.buffer(function() {
+                self.fire('seditorChange', self);
+            }, self.option.changeTimeout || 250);   // default change timeout is 250
+
+        // bind link events
         self.$links.delegate('a[data-operation]', 'click', function(e) {
             var $this = $(this),
                 pluginName = $this.data('operation').slice(7),
@@ -115,18 +157,8 @@ var SEditor = (function() {
                 plugin.click.call(this, self, e);
             }
         });
-        self._bindTextChangeEvent();
-        self.on('seditorChange', function() {
-            this._changeView();
-        }, self);
-    });
 
-    Klass.$methods('_bindTextChangeEvent', function() {
-        var self = this,
-            fireChange = Util.buffer(function() {
-                self.fire('seditorChange', self);
-            }, self.option.changeTimeout || 250);
-
+        // bind text change event
         if (window.addEventListener) {
             self.$text[0].addEventListener('input', fireChange, false);
         } else if (window.attachEvent) {
@@ -136,11 +168,6 @@ var SEditor = (function() {
                 }
             });
         }
-   });
-
-    Klass.$methods('_changeView', function() {
-        // TODO use start & end
-        this.$view.html(this.parser.UBBtoHTML(this.val()));
     });
 
     Klass.$methods('_UUID', function(supr) {
@@ -172,6 +199,8 @@ var SEditor = (function() {
     return Klass;
 })();
 
+//@import "i18n/zh_CN.js";
 //@import "plugin/bold.js";
 //@import "plugin/italic.js";
+//@import "plugin/preview.js";
 

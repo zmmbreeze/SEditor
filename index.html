@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SEditor</title>
+    <link rel="stylesheet" href="./src/SEditor.css" />
 </head>
 <body>
     <textarea id="editor" name="" rows="10" cols="30"></textarea>
@@ -13,10 +14,12 @@
     <script src="./src/core/Util.js"></script>
     <script src="./src/core/Event.js"></script>
     <script src="./src/SEditor.js"></script>
+    <script src="./src/i18n/zh_CN.js"></script>
     <script src="./src/plugin/bold.js"></script>
     <script src="./src/plugin/italic.js"></script>
+    <script src="./src/plugin/preview.js"></script>
     <script>
-        var e = new SEditor('#editor');
+    var editor = new SEditor('#editor');
     </script>
 </body>
 </html>

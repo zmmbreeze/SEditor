@@ -3,7 +3,7 @@
 /*global SEditor:true */
 
 SEditor.usePlugin('bold', {
-    title: '加粗',      // option
+    title: SEditor.i18n.bold,      // option
     hasButton: true,    // option
     init: function(editor, option) {
         // this === editor

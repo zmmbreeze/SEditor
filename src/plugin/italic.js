@@ -4,7 +4,7 @@
 /*global SEditor:true */
 
 SEditor.usePlugin('italic', {
-    title: '斜体',      // option
+    title: SEditor.i18n.italic,      // option
     hasButton: true,    // option
     init: function(editor, option) {
         // this === editor
