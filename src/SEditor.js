@@ -21,6 +21,7 @@ var SEditor = (function() {
          *                      wrapHtml
          *                      viewHtml
          *                      linkHtml
+         *                      width   => default is parent's width
          *
          */
         Klass = Event.$extend(function(supr, selector, option) {
@@ -84,7 +85,9 @@ var SEditor = (function() {
             return this.$text.width();
         } else {
             this.fire('seditorWidthChange', width);
-            this.$text.width(width);
+            // calculate (outerWidth - width) first
+            this.$links.width(width-(this.$links.outerWidth() - this.$links.width()));
+            this.$text.width(width-(this.$text.outerWidth() - this.$text.width()));
             return this;
         }
     });
@@ -122,17 +125,21 @@ var SEditor = (function() {
     Klass.$methods('_loadHtml', function(supr) {
         var self = this,
             option = self.option,
-            wrapHtml, linkHtml;
+            wrapHtml, linkHtml, w;
         self._UUID();
 
         // load html
-        wrapHtml = option.wrapHtml || '<div id="{v}" class="gui-seditor"></div>',
-        linkHtml = option.linkHtml || '<div class="gui-seditor-links"></div>';
+        wrapHtml = option.wrapHtml || '<div id="{v}" class="seditor"></div>',
+        linkHtml = option.linkHtml || '<div class="seditor-links"></div>';
         self.$text.wrap(Util.format(wrapHtml, self.id));
         self.$all = self.$text.parent();
         self.$all.css('position', 'relative');
         self.$links = $(linkHtml);
         self.$text.before(self.$links);
+
+        // setup width
+        w = option.width || self.$all.parent().width();
+        self.width(w);
 
         // change resize for textarea
         self._recover = {};
@@ -152,7 +159,7 @@ var SEditor = (function() {
         self.$links.delegate('a[data-operation]', 'click', function(e) {
             var $this = $(this),
                 pluginName = $this.data('operation').slice(7),
-                plugin = self.constructor.plugins[pluginName];
+                plugin = self.plugins[pluginName];
             if (plugin && plugin.click) {
                 plugin.click.call(this, self, e);
             }
@@ -179,6 +186,7 @@ var SEditor = (function() {
             pluginsOrder = this.constructor.pluginsOrder,
             i, l, plugin, name;
         if (plugins && pluginsOrder) {
+            this.plugins = {};
             for (i=0,l=pluginsOrder.length; i<l; i++) {
                 name = pluginsOrder[i];
                 plugin = plugins[name];
@@ -188,12 +196,17 @@ var SEditor = (function() {
     });
 
     Klass.$methods('_loadPlugin', function(supr, name, plugin) {
-        if (plugin.hasButton) {
-            var linkHtml = '<a href="javascript:void 0;" title="{title}" data-operation="seditor{name}" class="gui-seditor-links-{name}">{title}</a>';
-            linkHtml = Util.format(linkHtml, {name: name, title: plugin.title});
-            this.$links.append($(linkHtml));
+        var p = plugin();
+        if (p.hasButton) {
+            var linkHtml = '<a href="javascript:void 0;" title="{title}" data-operation="seditor{name}" class="seditor-links-{name}">{title}</a>',
+                $link;
+            linkHtml = Util.format(linkHtml, {name: name, title: p.title});
+            $link = $(linkHtml);
+            this.$links.append($link);
+            p.$button = $link;
         }
-        plugin.init.call(this, this, this.option);
+        p.init.call(this, this, this.option);
+        this.plugins[name] = p;
     });
 
     return Klass;

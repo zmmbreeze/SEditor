@@ -1,1 +1,111 @@
 @import "./plugin/preview.css";
+
+/* @module: seditor for editor */
+.seditor {
+}
+    .seditor textarea {
+        display:block;
+        padding: 1em;
+        margin: 0;
+        width: 100%;
+        line-height: 1.5;
+        font-size: 14px;
+        word-wrap: break-word;
+        outline: none;
+        resize: none;
+        overflow: auto;
+        background-color: #FFF;
+        border: 1px solid #d3d3d3;
+    }
+    .seditor-links {
+        margin-bottom: -1px;
+        overflow: hidden;
+        _height: 26px;
+        /* no padding-left & padding-right */
+        padding: 5px 0;
+        background-color: #f5f5f5;
+        border:1px solid #d3d3d3;
+    }
+        .seditor-links-bold,
+        .seditor-links-italic,
+        .seditor-links-link,
+        .seditor-links-image,
+        .seditor-links-video,
+        .seditor-links-ref,
+        .seditor-links-at,
+        .seditor-links-ul,
+        .seditor-links-ol {
+            _display: inline;
+            float: left;
+            margin-right: -1px;
+            width: 27px;
+            height: 27px;
+            text-indent: -9999px;
+            outline: none;
+            background: url(./imgs/small.gif) no-repeat 0 -610px;
+        }
+        .seditor-links-toggle{
+            _display: inline;
+            float: right;
+            margin-right: 5px;
+            line-height: 26px;
+            color: #bbb;
+        }
+            .seditor-links-toggle a {
+                color: #bbb;
+            }
+        .seditor-links-bold {
+            margin-left: 5px;
+        }
+        .seditor-links-italic{
+            background-position: -26px -610px;
+        }
+        .seditor-links-link{
+            background-position: -52px -610px;
+        }
+        .seditor-links-image{
+            background-position: -78px -610px;
+        }
+        .seditor-links-video{
+            background-position: -104px -610px;
+        }
+        .seditor-links-at{
+            background-position: -130px -610px;
+        }
+        .seditor-links-ref{
+            background-position: -156px -610px;
+        }
+        .seditor-links-ul{
+            background-position: -182px -610px;
+        }
+        .seditor-links-ol{
+            background-position: -208px -610px;
+        }
+        .seditor-links-bold:hover {
+            background-position: 0 -610px;
+        }
+        .seditor-links-italic:hover {
+            background-position: -26px -580px;
+        }
+        .seditor-links-link:hover {
+            background-position: -52px -580px;
+        }
+        .seditor-links-image:hover {
+            background-position: -78px -580px;
+        }
+        .seditor-links-video:hover {
+            background-position: -104px -580px;
+        }
+        .seditor-links-at:hover {
+            background-position: -130px -580px;
+        }
+        .seditor-links-ref:hover {
+            background-position: -156px -580px;
+        }
+        .seditor-links-ul:hover {
+            background-position: -182px -610px;
+        }
+        .seditor-links-ol:hover {
+            background-position: -208px -610px;
+        }
+

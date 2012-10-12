@@ -7,86 +7,115 @@
  * plugin for preview UBB
  * add options:
  *      {
- *          viewHtml: '<div class="gui-seditor-view"></div>',
+ *          viewHtml: '<div class="seditor-view"></div>',
  *          viewWhenFocus: false,
+ *          viewWidth: self.$text.width()
  *      }
  *
  *
  *
  *
  */
-SEditor.usePlugin('preview', {
-    title: SEditor.i18n.preview,      // option
-    hasButton: true,    // option
-    init: function(editor, option) {
-        // wrap textarea & setup z-index
-        editor.$text
-            // data-preview for mark
-            .wrap('<div style="position:relative;float:left;" data-preview-wrap="true"></div>')
-            .css({
-                position: 'relative',
-                zIndex: 2
-            });
-        // setup view div
-        var viewHtml = editor.option.viewHtml || '<div class="gui-seditor-view"><div></div><span>&gt;</span></div>',
-            $text = editor.$text,
-            $viewContent;
-        editor.$view = $(viewHtml)
-            .css({
-                fontSize: $text.css('font-size'),
-                lineHeight: $text.css('line-height'),
-                height: $text.outerHeight(),
-                width: $text.outerWidth()
-            });
-        $viewContent = editor.$view.children(':first');
-        $text.after(editor.$view);
+SEditor.usePlugin('preview', function() {
+    var sign = false,
+        plugin;
 
-        // bind events
-        editor.on('seditorChange', function() {
-            // TODO use start & end
-            if (this.isPreviewing) {
-                $viewContent.html(this.parser.UBBtoHTML(this.val()));
-            }
-        }, editor);
-
-        editor.on('seditorHeightChange', function(height) {
-            if (this.isPreviewing) {
-                this.$view.height(height);
-            }
-        }, editor);
-
-        editor.on('seditorWidthChange', function(width) {
-            if (this.isPreviewing) {
-                this.$view.css('left', width);
-            }
-        }, editor);
-    },
-    click: function(editor, event) {
-        // this is dom
-        event.preventDefault();
-        var self = this;
-        if (self.sign === true) {
+    function showPreview(editor) {
+        if (sign === true) {
             return;
         }
-        self.sign = true;
+        sign = true;
 
-        if (editor.isPreviewing) {
-            editor.isPreviewing = false;
-            editor.$view.animate({left: 0}, 100, function() {
-                $(self)
-                    .removeClass('current')
-                    .text(SEditor.i18n.preview);
-                self.sign = false;
-            });
-        } else {
-            editor.isPreviewing = true;
-            editor.fire('seditorChange');
-            editor.$view.animate({left: editor.$text.outerWidth()}, 100, function() {
-                $(self)
+        editor.isPreviewing = true;
+        editor.fire('seditorChange');
+        editor.$view
+            .show()
+            .animate({left: editor.$text.outerWidth()}, 100, function() {
+                plugin.$button
                     .addClass('current')
                     .text(SEditor.i18n.unpreview);
-                self.sign = false;
+                sign = false;
             });
-        }
     }
+
+    function hidePreview(editor) {
+        if (sign === true) {
+            return;
+        }
+        sign = true;
+
+        editor.isPreviewing = false;
+        editor.$view
+            .hide()
+            .animate({left: 0}, 100, function() {
+                plugin.$button
+                    .removeClass('current')
+                    .text(SEditor.i18n.preview);
+                sign = false;
+            });
+    }
+
+    plugin = {
+        title: SEditor.i18n.preview,      // option
+        hasButton: true,    // option
+        init: function(editor, option) {
+            // wrap textarea & setup z-index
+            editor.$text
+                // data-preview for mark
+                .wrap('<div style="position:relative;float:left;" data-preview-wrap="true"></div>')
+                .css({
+                    position: 'relative',
+                    zIndex: 2
+                });
+
+            // setup view div
+            var viewHtml = editor.option.viewHtml || '<div class="seditor-view"><div></div></div>',
+                $text = editor.$text,
+                $view = editor.$view = $(viewHtml)
+                    .css({
+                        fontSize: $text.css('font-size'),
+                        lineHeight: $text.css('line-height'),
+                        height: $text.height(),
+                        width: option.viewWidth || 400
+                    });
+            $text.after(editor.$view);
+
+            // bind events
+            editor.on('seditorChange', function() {
+                // TODO use start & end
+                if (this.isPreviewing) {
+                    $view.html(this.parser.UBBtoHTML(this.val()));
+                }
+            }, editor);
+
+            editor.on('seditorHeightChange', function(height) {
+                if (this.isPreviewing) {
+                    this.$view.height(height);
+                }
+            }, editor);
+
+            // setup viewWhenFocus
+            if (option.viewWhenFocus) {
+                $text
+                    .focus(function() {
+                        showPreview(editor);
+                    })
+                    .blur(function() {
+                        hidePreview(editor);
+                    });
+            }
+        },
+        click: function(editor, event) {
+            // this is dom
+            event.preventDefault();
+            if (editor.isPreviewing) {
+                hidePreview(editor, $(this));
+            } else {
+                showPreview(editor, $(this));
+            }
+        }
+    };
+
+    return plugin;
 });
+

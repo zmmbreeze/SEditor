@@ -19,7 +19,8 @@
     <script src="./src/plugin/italic.js"></script>
     <script src="./src/plugin/preview.js"></script>
     <script>
-    var editor = new SEditor('#editor');
+    var editor = new SEditor('#editor', {viewWhenFocus: true});
+    editor.width(600);
     </script>
 </body>
 </html>

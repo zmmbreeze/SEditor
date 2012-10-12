@@ -1,7 +1,28 @@
-.gui-seditor-view {
+.seditor-view {
+    display: none;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1;
+    padding: 1em;
+    margin: 0;
+    line-height: 1.5;
+    font-size: 14px;
     word-wrap: break-word;
+    overflow: auto;
+    background-color: #FFF;
+    border: 1px solid #d3d3d3;
+    border-left: none;
 }
+    .seditor-view a {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        margin-top: -12px;
+        margin-right: -12px;
+        width: 24px;
+        height: 24px;
+        overflow: hidden;
+        text-indent: -9999px;
+        background-color: #CCC;
+    }
