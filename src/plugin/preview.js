@@ -17,42 +17,54 @@
  *
  */
 SEditor.usePlugin('preview', function() {
-    var sign = false,
+    var showSign = false,
+        hideSign = false,
         plugin;
 
     function showPreview(editor) {
-        if (sign === true) {
+        if (showSign === true) {
             return;
         }
-        sign = true;
+        showSign = true;
 
-        editor.isPreviewing = true;
-        editor.fire('seditorChange');
-        editor.$view
-            .show()
-            .animate({left: editor.$text.outerWidth()}, 100, function() {
-                plugin.$button
-                    .addClass('current')
-                    .text(SEditor.i18n.unpreview);
-                sign = false;
-            });
+        // prevent frequce call
+        setTimeout(function() {
+            if (hideSign) {
+                return;
+            }
+            editor.isPreviewing = true;
+            editor.fire('seditorChange');
+            editor.$view
+                .show()
+                .animate({left: editor.$text.outerWidth()}, 250, function() {
+                    plugin.$button
+                        .addClass('current')
+                        .text(SEditor.i18n.unpreview);
+                    showSign = false;
+                });
+        }, 100);
     }
 
     function hidePreview(editor) {
-        if (sign === true) {
+        if (hideSign === true) {
             return;
         }
-        sign = true;
+        hideSign = true;
 
-        editor.isPreviewing = false;
-        editor.$view
-            .hide()
-            .animate({left: 0}, 100, function() {
-                plugin.$button
-                    .removeClass('current')
-                    .text(SEditor.i18n.preview);
-                sign = false;
-            });
+        setTimeout(function() {
+            if (hideSign) {
+                return;
+            }
+            editor.isPreviewing = false;
+            editor.$view
+                .hide()
+                .animate({left: 0}, 250, function() {
+                    plugin.$button
+                        .removeClass('current')
+                        .text(SEditor.i18n.preview);
+                    hideSign = false;
+                });
+        }, 100);
     }
 
     plugin = {

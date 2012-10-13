@@ -10,6 +10,7 @@ var SEditor = (function() {
     //@import "core/Proto.js";
     //@import "core/Util.js";
     //@import "core/Event.js";
+    //@import "ui/Menu.js";
 
     var UUID = 0,
         /**
@@ -39,15 +40,15 @@ var SEditor = (function() {
 
     Klass.UBB = UBB;
 
-    Klass.$statics('usePlugin', function(supr, name, plugin) {
+    Klass.$statics('usePlugin', function(supr, name, plugin, parser) {
         if (!this.plugins) {
             this.plugins = {};
             this.pluginsOrder = [];
         }
         this.plugins[name] = plugin;
         this.pluginsOrder.push(name);
-        if (plugin.parser) {
-            this.UBB.addTag(name, plugin.parser);
+        if (parser) {
+            this.UBB.addTag(name, parser);
         }
         return this;
     });
