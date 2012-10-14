@@ -3,17 +3,17 @@
 /*global SEditor:true */
 
 SEditor.usePlugin(
-    'ul',
+    'ol',
     function() {
         return {
-            title: SEditor.i18n.ul,      // option
-            hasButton: true,    // option
+            title: SEditor.i18n.ul,
+            hasButton: true,
             click: function(editor) {
                 // this is dom
                 editor.textApi.replaceSelectedText(function(selection) {
                     var text = selection.text,
                         all = selection.all;
-                    text = '[ul]\n' + text + (text[text.length-1] === '\n' ? '[/ul]' : '\n[/ul]');
+                    text = '[ol]\n' + text + (text[text.length-1] === '\n' ? '[/ol]' : '\n[/ol]');
                     if (all[selection.start-1] !== '\n') {
                         text = '\n' + text;
                     }
@@ -28,6 +28,12 @@ SEditor.usePlugin(
     },
     // [option] ubb tag parser
     {
+        parseHTML: function(nodeName, node, re) {
+            if (nodeName === 'ol') {
+                re.prefix = '[ol]\n' + (re.prefix || '');
+                re.suffix = (re.suffix || '') + '\n[/ol]';
+            }
+        },
         parseUBB: function(node, sonString, setting) {
             var i = 0,
                 strs = sonString.split('<br/>'),
@@ -38,7 +44,7 @@ SEditor.usePlugin(
             for (; j<l; i++, j++) {
                 newStrs[i] = strs[j];
             }
-            return '<ul><li>' + newStrs.join('</li><li>') + '</li></ul>';
+            return '<ol><li>' + newStrs.join('</li><li>') + '</li></ol>';
         },
         canContains: '*',
         canWrap: 1,

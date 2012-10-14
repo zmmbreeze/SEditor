@@ -15,8 +15,20 @@ SEditor.usePlugin(
             */
             click: function(editor) {
                 // this is dom
-                event.preventDefault();
-                editor.textApi.surroundSelectedText('[bold]', '[/bold]');
+                editor.textApi.replaceSelectedText(function(selection) {
+                    var text = selection.text,
+                        l;
+                    text = '[bold]' + text;
+                    l = text.length;
+
+                    if (text[l-1] === '\n') {
+                        text = text.slice(0, l-1) + '[/bold]\n';
+                    } else {
+                        text += '[/bold]';
+                    }
+
+                    return text;
+                });
                 editor.fire('seditorChange');
             }
         };

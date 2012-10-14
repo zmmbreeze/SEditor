@@ -1,0 +1,85 @@
+.seditor-buttons-bold,
+.seditor-buttons-italic,
+.seditor-buttons-url,
+.seditor-buttons-image,
+.seditor-buttons-video,
+.seditor-buttons-font,
+.seditor-buttons-color,
+.seditor-buttons-at,
+.seditor-buttons-ul,
+.seditor-buttons-ol {
+    _display: inline;
+    float: left;
+    margin-right: -1px;
+    width: 27px;
+    height: 27px;
+    text-indent: -9999px;
+    outline: none;
+    background: url(../imgs/small.gif) no-repeat 0 -610px;
+}
+.seditor-buttons-bold {
+    margin-left: 5px;
+}
+.seditor-buttons-italic{
+    background-position: -26px -610px;
+}
+.seditor-buttons-url{
+    background-position: -54px -610px;
+}
+.seditor-buttons-image{
+    background-position: -80px -610px;
+}
+.seditor-buttons-video{
+    background-position: -106px -610px;
+}
+.seditor-buttons-at{
+    background-position: -130px -610px;
+}
+.seditor-buttons-ul{
+    background-position: -184px -610px;
+}
+.seditor-buttons-ol{
+    background-position: -210px -610px;
+}
+.seditor-buttons-bold:hover {
+    background-position: 0 -580px;
+}
+.seditor-buttons-italic:hover {
+    background-position: -26px -580px;
+}
+.seditor-buttons-url:hover {
+    background-position: -54px -580px;
+}
+.seditor-buttons-image:hover {
+    background-position: -80px -580px;
+}
+.seditor-buttons-video:hover {
+    background-position: -106px -580px;
+}
+.seditor-buttons-at:hover {
+    background-position: -130px -580px;
+}
+.seditor-buttons-ref:hover {
+    background-position: -156px -580px;
+}
+.seditor-buttons-ul:hover {
+    background-position: -184px -580px;
+}
+.seditor-buttons-ol:hover {
+    background-position: -210px -580px;
+}
+
+
+.seditor-buttons-font,
+.seditor-buttons-color {
+    text-indent: 0;
+    background: none;
+}
+
+.seditor-buttons-fullscreen {
+    _display: inline;
+    float: right;
+    margin-right: 5px;
+    line-height: 26px;
+    color: #bbb;
+}

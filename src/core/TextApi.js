@@ -3,9 +3,11 @@
  *
  * 修改自：http://code.google.com/p/rangyinputs/
  * @author mzhou
- * @log 0.1 添加了insertCaret函数用于插入光标
- * @license Rangy Text Inputs, a cross-browser textarea and text input library plug-in for jQuery.
+ * @log 0.1 add insertCaret api
+ *      0.2 remove jquery require
+ *      0.3 replaceSelectedText api add transform function support
  *
+ * License Rangy Text Inputs, a cross-browser textarea and text input library plug-in for jQuery.
  * Part of Rangy, a cross-browser JavaScript range and selection library
  * http://code.google.com/p/rangy/
  *
@@ -63,11 +65,13 @@ var TextApi = (function() {
     }
 
     function makeSelection(el, start, end) {
+        var v = el.value;
         return {
             start: start,
             end: end,
             length: end - start,
-            text: el.value.slice(start, end)
+            text: v.slice(start, end),
+            all: v
         };
     }
 
@@ -209,10 +213,22 @@ var TextApi = (function() {
         }
     };
 
+    /**
+     * replace selected text
+     *
+     * @param {object} el dom
+     * @param {string/function} text replacement
+     *                               function (selection) {
+     *                                  return selection.text.slice(1);
+     *                               }
+     */
     replaceSelectedText = function(el, text) {
-        var sel = getSelection(el), val = el.value;
+        var sel = getSelection(el),
+            val = el.value,
+            caretIndex;
+        text = typeof text === 'string' ? text : text(sel);
         el.value = val.slice(0, sel.start) + text + val.slice(sel.end);
-        var caretIndex = sel.start + text.length;
+        caretIndex = sel.start + text.length;
         setSelection(el, caretIndex, caretIndex);
     };
 

@@ -11,8 +11,20 @@ SEditor.usePlugin(
             hasButton: true,    // option
             click: function(editor) {
                 // this is dom
-                event.preventDefault();
-                editor.textApi.surroundSelectedText('[italic]', '[/italic]');
+                editor.textApi.replaceSelectedText(function(selection) {
+                    var text = selection.text,
+                        l;
+                    text = '[italic]' + text;
+                    l = text.length;
+
+                    if (text[l-1] === '\n') {
+                        text = text.slice(0, l-1) + '[/italic]\n';
+                    } else {
+                        text += '[/italic]';
+                    }
+
+                    return text;
+                });
                 editor.fire('seditorChange');
             }
         };

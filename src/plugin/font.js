@@ -10,7 +10,6 @@ SEditor.usePlugin(
             hasButton: true,    // option
             click: function(editor) {
                 // this is dom
-                event.preventDefault();
                 var font = prompt(SEditor.i18n.fontPrompt, 'Comic Sans MS');
                 editor.textApi.surroundSelectedText('[font='+font+']', '[/font]');
                 editor.fire('seditorChange');

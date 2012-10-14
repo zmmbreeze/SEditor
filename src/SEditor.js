@@ -138,7 +138,7 @@ var SEditor = (function() {
 
         // load html
         wrapHtml = option.wrapHtml || '<div id="{v}" class="seditor"></div>',
-        linkHtml = option.linkHtml || '<div class="seditor-links"></div>';
+        linkHtml = option.linkHtml || '<div class="seditor-buttons"></div>';
         self.$text.wrap(Util.format(wrapHtml, self.id));
         self.$all = self.$text.parent();
         self.$all.css('position', 'relative');
@@ -251,7 +251,7 @@ var SEditor = (function() {
 
         // setup button
         if (p.hasButton) {
-            var linkHtml = '<a href="javascript:void 0;" title="{title}" data-operation="seditor{name}" class="seditor-links-{name}">{title}</a>',
+            var linkHtml = '<a href="javascript:void 0;" title="{title}" data-operation="seditor{name}" class="seditor-buttons-{name}">{title}</a>',
                 $button;
             linkHtml = Util.format(linkHtml, {name: name, title: p.title});
             $button = $(linkHtml);
@@ -276,5 +276,7 @@ var SEditor = (function() {
 //@import "plugin/italic.js";
 //@import "plugin/font.js";
 //@import "plugin/color.js";
+//@import "plugin/ul.js";
+//@import "plugin/ol.js";
 //@import "plugin/preview.js";
 

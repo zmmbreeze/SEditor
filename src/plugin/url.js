@@ -3,31 +3,30 @@
 /*global SEditor:true, prompt:false */
 
 SEditor.usePlugin(
-    'image',
+    'url',
     function() {
         return {
-            title: SEditor.i18n.image,      // option
+            title: SEditor.i18n.url,      // option
             hasButton: true,    // option
             click: function(editor) {
                 // this is dom
-                var url = prompt(SEditor.i18n.imagePrompt, 'http://');
-                editor.textApi.surroundSelectedText('[image]' + url + '[/image]');
+                var url = prompt(SEditor.i18n.urlPrompt, 'http://');
+                editor.textApi.surroundSelectedText('[url='+url+']', '[/url]');
                 editor.fire('seditorChange');
             }
         };
     },
     // [option] ubb tag parser
     {
-        parseHTML: function(nodeName, node, re) {
-            if (nodeName === 'img' && !node.getAttribute('data-src')) {
-                re.prefix = '[image]' + node.getAttribute('src') + '[/image]' + (re.prefix || '');
+        parseUBB: function(node, sonString, setting) {
+            if (node.attr) {
+                return '<span style="font-family:' + node.attr.slice(1) + ';">' + sonString + '</b>';
+            } else {
+                return sonString;
             }
         },
-        parseUBB: function(node, sonString, setting) {
-            return sonString ? ('<img src="' + sonString + '"/>') : '';
-        },
+        canContains: 'bold,italic,color,font,url,image',
         canWrap: 0,
         isBlock: 0
     });
-
 
