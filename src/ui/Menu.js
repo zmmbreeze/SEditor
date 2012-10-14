@@ -4,7 +4,7 @@
 
 var Menu = (function() {
     'use strict';
-    var menuTmpl = '<div class="seditor-menu">\
+    var menuTmpl = '<div class="seditor-menu" {v}>\
                         <a href="#" tabindex="0" hidefocus="true" class="seditor-menu-focus">&nbsp;</a>\
                         <ul class="gui-menu-list">\
                         </ul>\
@@ -14,13 +14,15 @@ var Menu = (function() {
          *
          * @param {string} container
          * @param {object} option
+         *                      tmpl: function(value, index) {},
+         *                      showWhenCreate: false
          */
-        Klass = Proto.$extend(function(supr, container, done, option) {
-            this.$menu = $(menuTmpl);
-            this.done = done;
+        Klass = Proto.$extend(function(supr, container, option) {
+            this.$menu = $(menuTmpl.replace('{v}', 'style="display:none;"'));
             this._data = [];
             this._$content = this.$menu.children(':eq(1)');
-            this._option = option;
+            this._option = option || {};
+            this._tmpl = this._option.tmpl;
             this._selected = -1;
             $(container).append(this.$menu);
             this._bindEvent();
@@ -46,48 +48,56 @@ var Menu = (function() {
             });
 
         // focus link
-        var $focus = self.$menu.children('a');
-        $focus.keydown(function(e) {
-            e.preventDefault();
-            switch(e.which) {
-                // enter
-                case 13:
-                    self.done();
-                    break;
-                // esc
-                case 27:
-                    self.hide();
-                    break;
-                // down
-                case 40:
-                    self.down();
-                    break;
-                // up
-                case 38:
-                    self.up();
-                    break;
-            }
-        }).focus(function() {
-            self.show();
-            if (self._selected === -1) {
-                self.select(0);
-            }
-        });
+        this._$focus = self.$menu.children('a');
+        this._$focus
+            .keydown(function(e) {
+                e.preventDefault();
+                switch(e.which) {
+                    // enter
+                    case 13:
+                        self.done();
+                        break;
+                    // esc
+                    case 27:
+                        self.hide();
+                        break;
+                    // down
+                    case 40:
+                        self.down();
+                        break;
+                    // up
+                    case 38:
+                        self.up();
+                        break;
+                }
+            })
+            .focus(function() {
+                self.show();
+                if (self._selected === -1) {
+                    self.select(0);
+                }
+            });
     });
 
-    Klass.$methods('_update', function(supr) {
+    Klass.$methods('update', function(supr) {
         var html = [],
-            tmpl = this._option.tmpl,
+            tmpl = this._tmpl,
             i, l;
         for (i=0,l=this._data.length; i<l; i++) {
             html.push('<li>');
-            html.push(tmpl ? tmpl(this._data[i]) : this.list[i]);
+            html.push(tmpl ? tmpl(this._data[i], i) : this.list[i]);
             html.push('</li>');
         }
         this._$content.html(html.join(''));
         this._$list = this._$content.children();
         // reset select
         this.select(this._selected);
+        return this;
+    });
+
+    Klass.$methods('setMenuTmpl', function(supr, tmpl) {
+        this._tmpl = tmpl;
+        return this;
     });
 
     Klass.$methods('data', function(supr, data) {
@@ -95,7 +105,6 @@ var Menu = (function() {
             return this._data;
         } else {
             this._data = data;
-            this._update();
             return this;
         }
     });
@@ -115,9 +124,30 @@ var Menu = (function() {
         return this;
     });
 
-    Klass.$methods('done', function(supr) {
-        if (this._doneCallBack) {
-            this._doneCallBack.call(this, this._data[this._selected], this._selected);
+    Klass.$methods('up', function() {
+        var num = this._selected-1;
+        if ( num < 0 ) {
+            num = this._data.length-1;
+        }
+        this.select( num );
+        return this;
+    });
+
+    Klass.$methods('down', function() {
+        var num = this._selected+1;
+        if ( num > this._data.length-1 ) {
+            num = 0;
+        }
+        this.select( num );
+        return this;
+    });
+
+    Klass.$methods('done', function(supr, callback) {
+        if (callback) {
+            this._doneCallBack = callback;
+        } else if (this._doneCallBack) {
+            var num = this._selected;
+            this._doneCallBack.call(this._$list[num], this._data[num], num);
         }
         return this;
     });
@@ -141,6 +171,11 @@ var Menu = (function() {
 
     Klass.$methods('hide', function() {
         this.$menu.hide();
+        return this;
+    });
+
+    Klass.$methods('focus', function() {
+        this._$focus.focus();
         return this;
     });
 

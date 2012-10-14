@@ -1,7 +1,7 @@
 
 
 /*jshint undef:true, browser:true, noarg:true, curly:true, regexp:true, newcap:true, trailing:false, noempty:true, regexp:false, strict:true, evil:true, funcscope:true, iterator:true, loopfunc:true, multistr:true, boss:true, eqnull:true, eqeqeq:false, undef:true */
-/*global Event:true, $:false, TextApi:false, UBB:false, Util:false */
+/*global Event:true, $:false, TextApi:false, UBB:false, Util:false, Menu:false */
 
 var SEditor = (function() {
     'use strict';
@@ -39,6 +39,8 @@ var SEditor = (function() {
         });
 
     Klass.UBB = UBB;
+    Klass.Util = Util;
+    Klass.Menu = Menu;
 
     Klass.$statics('usePlugin', function(supr, name, plugin, parser) {
         if (!this.plugins) {
@@ -87,7 +89,7 @@ var SEditor = (function() {
         } else {
             this.fire('seditorWidthChange', width);
             // calculate (outerWidth - width) first
-            this.$links.width(width-(this.$links.outerWidth() - this.$links.width()));
+            this.$buttons.width(width-(this.$buttons.outerWidth() - this.$buttons.width()));
             this.$text.width(width-(this.$text.outerWidth() - this.$text.width()));
             return this;
         }
@@ -112,15 +114,20 @@ var SEditor = (function() {
         if (this._recover.resize !== 'none') {
             this.$text.css('resize', this._recover.resize);
         }
+        // release menu
+        if (this.buttonMenu) {
+            this.buttonMenu.remove();
+        }
         // release
         this.$text = null;
         this.$view = null;
         this.$all = null;
-        this.$links = null;
+        this.$buttons = null;
         this.option = null;
         this.parser = null;
         this.textApi = null;
         this._recover = null;
+        this.buttonMenu = null;
     });
 
     Klass.$methods('_loadHtml', function(supr) {
@@ -135,8 +142,8 @@ var SEditor = (function() {
         self.$text.wrap(Util.format(wrapHtml, self.id));
         self.$all = self.$text.parent();
         self.$all.css('position', 'relative');
-        self.$links = $(linkHtml);
-        self.$text.before(self.$links);
+        self.$buttons = $(linkHtml);
+        self.$text.before(self.$buttons);
 
         // setup width
         w = option.width || self.$all.parent().width();
@@ -157,12 +164,30 @@ var SEditor = (function() {
             }, self.option.changeTimeout || 250);   // default change timeout is 250
 
         // bind link events
-        self.$links.delegate('a[data-operation]', 'click', function(e) {
+        self.$buttons.delegate('a[data-operation]', 'click', function(e) {
             var $this = $(this),
                 pluginName = $this.data('operation').slice(7),
                 plugin = self.plugins[pluginName];
             if (plugin && plugin.click) {
-                plugin.click.call(this, self, e);
+                if (plugin.menu) {
+                    var buttonPos = $this.position(),
+                        buttonHeight = $this.height();
+                    self.buttonMenu.$menu
+                        .css({
+                            top: buttonPos.top,
+                            left: buttonPos.left
+                        });
+                    self.buttonMenu
+                        .setMenuTmpl(plugin.menuTmpl)
+                        .data(plugin.menu)
+                        .update()
+                        .focus()
+                        .done(function(data, index) {
+                            plugin.click.call(this, self, data, index);
+                        });
+                } else {
+                    plugin.click.call(this, self);
+                }
             }
         });
 
@@ -196,17 +221,50 @@ var SEditor = (function() {
         }
     });
 
+    Klass.$methods('_initButtonMenu', function(supr) {
+        var self = this;
+        if (self._initedButtonMenu) {
+            return;
+        }
+        self._initedButtonMenu = true;
+        self.$buttons.css({
+            'position': 'relative',
+            'z-index': '9999'
+        });
+        self.buttonMenu = new Menu(this.$buttons);
+        // setup hide
+        self.$all.click(function(e) {
+            if (!$.contains(self.$buttons[0], e.target)) {
+                self.buttonMenu.hide();
+            }
+        });
+    });
+
     Klass.$methods('_loadPlugin', function(supr, name, plugin) {
+        // generate plugin
         var p = plugin();
+
+        // call init function
+        if (p.init) {
+            p.init.call(this, this, this.option);
+        }
+
+        // setup button
         if (p.hasButton) {
             var linkHtml = '<a href="javascript:void 0;" title="{title}" data-operation="seditor{name}" class="seditor-links-{name}">{title}</a>',
-                $link;
+                $button;
             linkHtml = Util.format(linkHtml, {name: name, title: p.title});
-            $link = $(linkHtml);
-            this.$links.append($link);
-            p.$button = $link;
+            $button = $(linkHtml);
+            this.$buttons.append($button);
+            p.$button = $button;
+
+            // setup menu
+            if (p.menu) {
+                this._initButtonMenu();
+            }
         }
-        p.init.call(this, this, this.option);
+
+        // set this.plugins
         this.plugins[name] = p;
     });
 
@@ -216,5 +274,7 @@ var SEditor = (function() {
 //@import "i18n/zh_CN.js";
 //@import "plugin/bold.js";
 //@import "plugin/italic.js";
+//@import "plugin/font.js";
+//@import "plugin/color.js";
 //@import "plugin/preview.js";
 

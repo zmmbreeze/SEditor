@@ -8,13 +8,16 @@ SEditor.usePlugin(
         return {
             title: SEditor.i18n.bold,      // option
             hasButton: true,    // option
+            /*
             init: function(editor, option) {
                 // this === editor
             },
-            click: function(editor, event) {
+            */
+            click: function(editor) {
                 // this is dom
                 event.preventDefault();
                 editor.textApi.surroundSelectedText('[bold]', '[/bold]');
+                editor.fire('seditorChange');
             }
         };
     },
@@ -38,12 +41,11 @@ SEditor.usePlugin(
         // Specified which tag can be contained.
         // '' or undefined indicate it can't contian any tag.
         // '*' indicate it can contian any tag.
-        canContains: 'bold,italic,color,url,image',
+        canContains: 'bold,italic,font,color,url,image',
         // bool.
         // If true, then this tag can contains '\n'.
         canWrap: 0,
         // bool.
         // If true, then the '\n' right after this tag should be ignore.
-        isBlock: 0,
-        noAttr: 1
+        isBlock: 0
     });

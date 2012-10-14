@@ -9,5 +9,12 @@ SEditor.i18n = {
     ul: 'insert unordered list',
     ol: 'insert ordered list',
     preview: 'preview',
-    unpreview: 'close preview'
+    unpreview: 'close preview',
+    font: 'font',
+    fontPrompt: 'font family',
+    color: 'color',
+    colorBlue: 'blue',
+    colorRed: 'red',
+    colorGreen: 'green',
+    colorYellow: 'yellow'
 };

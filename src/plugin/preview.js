@@ -27,19 +27,21 @@ SEditor.usePlugin('preview', function() {
         }
         showSign = true;
 
-        // prevent frequce call
+        // prevent frequently call
         setTimeout(function() {
             if (hideSign) {
                 return;
             }
             editor.isPreviewing = true;
-            editor.fire('seditorChange');
             editor.$view
                 .show()
                 .animate({left: editor.$text.outerWidth()}, 250, function() {
-                    plugin.$button
-                        .addClass('current')
-                        .text(SEditor.i18n.unpreview);
+                    editor.fire('seditorChange');
+                    if (plugin.$button) {
+                        plugin.$button
+                            .addClass('current')
+                            .text(SEditor.i18n.unpreview);
+                    }
                     showSign = false;
                 });
         }, 100);
@@ -52,16 +54,18 @@ SEditor.usePlugin('preview', function() {
         hideSign = true;
 
         setTimeout(function() {
-            if (hideSign) {
+            if (showSign) {
                 return;
             }
             editor.isPreviewing = false;
             editor.$view
                 .hide()
                 .animate({left: 0}, 250, function() {
-                    plugin.$button
-                        .removeClass('current')
-                        .text(SEditor.i18n.preview);
+                    if (plugin.$button) {
+                        plugin.$button
+                            .removeClass('current')
+                            .text(SEditor.i18n.preview);
+                    }
                     hideSign = false;
                 });
         }, 100);
@@ -108,6 +112,7 @@ SEditor.usePlugin('preview', function() {
 
             // setup viewWhenFocus
             if (option.viewWhenFocus) {
+                plugin.hasButton = false;
                 $text
                     .focus(function() {
                         showPreview(editor);
@@ -117,9 +122,8 @@ SEditor.usePlugin('preview', function() {
                     });
             }
         },
-        click: function(editor, event) {
+        click: function(editor) {
             // this is dom
-            event.preventDefault();
             if (editor.isPreviewing) {
                 hidePreview(editor, $(this));
             } else {
