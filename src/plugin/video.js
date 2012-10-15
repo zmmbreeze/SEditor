@@ -11,9 +11,10 @@ SEditor.usePlugin(
             hasButton: true,    // option
             click: function(editor) {
                 // this is dom
-                var url = prompt(SEditor.i18n.videoPrompt, 'http://');
+                var url = prompt(SEditor.i18n.videoPrompt, 'http://'),
+                    selection = editor.textApi.getSelection();
                 if (url) {
-                    editor.textApi.surroundSelectedText('[video]' + url + '[/video]');
+                    editor.textApi.insertText('[video]' + url + '[/video]', selection.end, true);
                     editor.fire('seditorChange');
                 }
             }

@@ -5,7 +5,7 @@
  */
 
 /*jshint undef:true, browser:true, noarg:true, curly:true, regexp:true, newcap:true, trailing:false, noempty:true, regexp:false, strict:true, evil:true, funcscope:true, iterator:true, loopfunc:true, multistr:true, boss:true, eqnull:true, eqeqeq:false, undef:true */
-/*global Proto:true */
+/*global $:false */
 var Util = (function() {
     'use strict';
     var Klass = {},
@@ -13,6 +13,8 @@ var Util = (function() {
         ObjProto = Object.prototype,
         nativeFilter = ArrayProto.filter,
         toString = ObjProto.toString,
+        trimLeft = /^\s+/,
+        trimRight = /\s+$/,
         // validate html
         class2type = { // Ideas from jquery, but don't use string and each to make it faster
             '[object Boolean]': 'boolean',
@@ -139,6 +141,34 @@ var Util = (function() {
             }
             t = setTimeout(func, timeout || 500);
         };
+    };
+
+    Klass.replaceByLine = function(str, replacement) {
+        var strs = str.split('\n'),
+            i, l, line, isEndWithR;
+        for (i=0,l=strs.length; i<l; i++) {
+            line = strs[i];
+            isEndWithR = line[line.length-1] === '\r';
+            strs[i] = replacement((isEndWithR ? line.slice(-1) : line), i, l) + (isEndWithR ? '\r' : '');
+        }
+        return strs.join('\n');
+    };
+
+    Klass.wrapTextByLine = function(str, prefix, suffix) {
+        return this.replaceByLine(str, function(lineStr, index, linesNum) {
+            var pMatch, sMatch, pSpace, sSpace,
+                trimLineStr = lineStr.replace(trimLeft, '')
+                                     .replace(trimRight, '');
+            if (linesNum !== 1 && trimLineStr === '') {
+                return '';
+            } else {
+                pMatch = lineStr.match(trimLeft);
+                sMatch = lineStr.match(trimRight);
+                pSpace = pMatch ? pMatch[0] : '';
+                sSpace = sMatch ? sMatch[0] : '';
+                return pSpace + prefix + trimLineStr + suffix + sSpace;
+            }
+        });
     };
 
     return Klass;

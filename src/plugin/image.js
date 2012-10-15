@@ -10,9 +10,10 @@ SEditor.usePlugin(
             hasButton: true,    // option
             click: function(editor) {
                 // this is dom
-                var url = prompt(SEditor.i18n.imagePrompt, 'http://');
+                var url = prompt(SEditor.i18n.imagePrompt, 'http://'),
+                    selection = editor.textApi.getSelection();
                 if (url) {
-                    editor.textApi.surroundSelectedText('[image]' + url + '[/image]');
+                    editor.textApi.insertText('[image]' + url + '[/image]', selection.end, true);
                     editor.fire('seditorChange');
                 }
             }

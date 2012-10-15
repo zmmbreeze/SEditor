@@ -1,6 +1,6 @@
 
 /*jshint undef:true, browser:true, noarg:true, curly:true, regexp:true, newcap:true, trailing:false, noempty:true, regexp:false, strict:false, evil:true, funcscope:true, iterator:true, loopfunc:true, multistr:true, boss:true, eqnull:true, eqeqeq:false, undef:true */
-/*global SEditor:true, $:false */
+/*global SEditor:true, $:false, Util:false */
 
 SEditor.usePlugin(
     'color',
@@ -21,7 +21,9 @@ SEditor.usePlugin(
             click: function(editor, menuData) {
                 // this is dom
                 var color = $(this).children('a').data('color');
-                editor.textApi.surroundSelectedText('[color=' + color + ']', '[/color]');
+                editor.textApi.replaceSelectedText(function(selection) {
+                    return Util.wrapTextByLine(selection.text, '[color=' + color + ']', '[/color]');
+                });
                 editor.fire('seditorChange');
                 editor.buttonMenu.hide();
             }

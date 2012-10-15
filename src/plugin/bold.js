@@ -1,6 +1,6 @@
 
 /*jshint undef:true, browser:true, noarg:true, curly:true, regexp:true, newcap:true, trailing:false, noempty:true, regexp:false, strict:false, evil:true, funcscope:true, iterator:true, loopfunc:true, multistr:true, boss:true, eqnull:true, eqeqeq:false, undef:true */
-/*global SEditor:true */
+/*global SEditor:true, Util:false */
 
 SEditor.usePlugin(
     'bold',
@@ -16,18 +16,7 @@ SEditor.usePlugin(
             click: function(editor) {
                 // this is dom
                 editor.textApi.replaceSelectedText(function(selection) {
-                    var text = selection.text,
-                        l;
-                    text = '[bold]' + text;
-                    l = text.length;
-
-                    if (text[l-1] === '\n') {
-                        text = text.slice(0, l-1) + '[/bold]\n';
-                    } else {
-                        text += '[/bold]';
-                    }
-
-                    return text;
+                    return Util.wrapTextByLine(selection.text, '[bold]', '[/bold]');
                 });
                 editor.fire('seditorChange');
             }
