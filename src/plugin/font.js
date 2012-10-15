@@ -11,8 +11,10 @@ SEditor.usePlugin(
             click: function(editor) {
                 // this is dom
                 var font = prompt(SEditor.i18n.fontPrompt, 'Comic Sans MS');
-                editor.textApi.surroundSelectedText('[font='+font+']', '[/font]');
-                editor.fire('seditorChange');
+                if (font) {
+                    editor.textApi.surroundSelectedText('[font='+font+']', '[/font]');
+                    editor.fire('seditorChange');
+                }
             }
         };
     },
@@ -20,7 +22,7 @@ SEditor.usePlugin(
     {
         parseUBB: function(node, sonString, setting) {
             if (node.attr) {
-                return '<span style="font-family:' + node.attr.slice(1) + ';">' + sonString + '</b>';
+                return '<span style="font-family:' + node.attr.slice(1) + ';">' + sonString + '</span>';
             } else {
                 return sonString;
             }

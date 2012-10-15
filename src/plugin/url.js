@@ -11,19 +11,28 @@ SEditor.usePlugin(
             click: function(editor) {
                 // this is dom
                 var url = prompt(SEditor.i18n.urlPrompt, 'http://');
-                editor.textApi.surroundSelectedText('[url='+url+']', '[/url]');
-                editor.fire('seditorChange');
+                if (url) {
+                    editor.textApi.surroundSelectedText('[url href='+url+']', '[/url]');
+                    editor.fire('seditorChange');
+                }
             }
         };
     },
     // [option] ubb tag parser
     {
         parseUBB: function(node, sonString, setting) {
-            if (node.attr) {
-                return '<span style="font-family:' + node.attr.slice(1) + ';">' + sonString + '</b>';
-            } else {
-                return sonString;
+            var i, t, l,
+                href = node.attr ? node.attr.replace(/^\ href\=/, '') : '';
+            if (!node.attr) {
+                // for [url]http://www.guokr.com/question/[bold]265263[/bold]/[/url]
+                for (i=0,l=node.length; i<l; i++) {
+                    t = node[i];
+                    if (t.name === '#text') {
+                        href += t.value;
+                    }
+                }
             }
+            return '<a href="' + href + '">' + sonString + '</a>';
         },
         canContains: 'bold,italic,color,font,url,image',
         canWrap: 0,

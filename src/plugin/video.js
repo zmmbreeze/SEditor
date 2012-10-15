@@ -12,8 +12,10 @@ SEditor.usePlugin(
             click: function(editor) {
                 // this is dom
                 var url = prompt(SEditor.i18n.videoPrompt, 'http://');
-                editor.textApi.surroundSelectedText('[video]' + url + '[/video]');
-                editor.fire('seditorChange');
+                if (url) {
+                    editor.textApi.surroundSelectedText('[video]' + url + '[/video]');
+                    editor.fire('seditorChange');
+                }
             }
         };
     },

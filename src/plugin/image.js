@@ -11,8 +11,10 @@ SEditor.usePlugin(
             click: function(editor) {
                 // this is dom
                 var url = prompt(SEditor.i18n.imagePrompt, 'http://');
-                editor.textApi.surroundSelectedText('[image]' + url + '[/image]');
-                editor.fire('seditorChange');
+                if (url) {
+                    editor.textApi.surroundSelectedText('[image]' + url + '[/image]');
+                    editor.fire('seditorChange');
+                }
             }
         };
     },
