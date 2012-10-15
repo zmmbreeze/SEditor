@@ -97,10 +97,12 @@ var SEditor = (function() {
 
     Klass.$methods('height', function(supr, height) {
         if (height == null) {
-            return this.$text.height();
+            return this.$all.height();
         } else {
-            this.fire('seditorHeightChange', height);
-            this.$text.height(height);
+            var buttonsHeight = this.$buttons.outerHeight(),
+                textHeight = height - buttonsHeight;
+            this.fire('seditorHeightChange', height, textHeight);
+            this.$text.height(textHeight);
             return this;
         }
     });
@@ -279,4 +281,5 @@ var SEditor = (function() {
 //@import "plugin/ul.js";
 //@import "plugin/ol.js";
 //@import "plugin/preview.js";
+//@import "plugin/fullscreen.js";
 

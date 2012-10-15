@@ -18,5 +18,7 @@ SEditor.i18n = {
     colorBlue: '蓝色',
     colorRed: '红色',
     colorGreen: '绿色',
-    colorYellow: '黄色'
+    colorYellow: '黄色',
+    fullscreen: '全屏',
+    unfullscreen: '取消全屏'
 };

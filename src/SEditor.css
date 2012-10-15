@@ -3,6 +3,10 @@
 @import "./plugin/buttons.css";
 
 /* @module: seditor textarea */
+.seditor {
+    overflow: hidden;
+    _zoom: 1;
+}
 .seditor textarea {
     display:block;
     padding: 1em;

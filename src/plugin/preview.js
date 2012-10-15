@@ -93,9 +93,9 @@ SEditor.usePlugin('preview', function() {
                 }
             }, editor);
 
-            editor.on('seditorHeightChange', function(height) {
+            editor.on('seditorHeightChange', function(height, textHeight) {
                 if (this.isPreviewing) {
-                    this.$view.height(height);
+                    this.$view.height(textHeight);
                 }
             }, editor);
 

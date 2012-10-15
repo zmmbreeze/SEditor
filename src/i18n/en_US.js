@@ -19,5 +19,7 @@ SEditor.i18n = {
     colorBlue: 'blue',
     colorRed: 'red',
     colorGreen: 'green',
-    colorYellow: 'yellow'
+    colorYellow: 'yellow',
+    fullscreen: 'Fullscreen',
+    unfullscreen: 'Cancel fullscreen'
 };
