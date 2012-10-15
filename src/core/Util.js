@@ -143,6 +143,13 @@ var Util = (function() {
         };
     };
 
+    /**
+     * replace string by line
+     * @param {string} str
+     * @param {function} replacement
+     * @return {string}
+     *
+     */
     Klass.replaceByLine = function(str, replacement) {
         var strs = str.split('\n'),
             i, l, line, isEndWithR;
@@ -154,6 +161,14 @@ var Util = (function() {
         return strs.join('\n');
     };
 
+    /**
+     * wrap text by line, and skip the whitespace
+     *
+     * @param {string} str
+     * @param {string} prefix
+     * @param {string} suffix
+     * @return {string}
+     */
     Klass.wrapTextByLine = function(str, prefix, suffix) {
         return this.replaceByLine(str, function(lineStr, index, linesNum) {
             var pMatch, sMatch, pSpace, sSpace,

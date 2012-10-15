@@ -27,24 +27,19 @@ SEditor.usePlugin('preview', function() {
         }
         showSign = true;
 
-        // prevent frequently call
-        setTimeout(function() {
-            if (hideSign) {
-                return;
-            }
-            editor.isPreviewing = true;
-            editor.$view
-                .show()
-                .animate({left: editor.$text.outerWidth()}, 250, function() {
-                    editor.fire('seditorChange');
-                    if (plugin.$button) {
-                        plugin.$button
-                            .addClass('current')
-                            .text(SEditor.i18n.unpreview);
-                    }
-                    showSign = false;
-                });
-        }, 100);
+        editor.isPreviewing = true;
+        editor.$view
+            .show()
+            .animate({left: editor.$text.outerWidth()}, 250, function() {
+                editor.fire('seditorChange');
+                if (plugin.$button) {
+                    plugin.$button
+                        .addClass('current')
+                        .text(SEditor.i18n.unpreview)
+                        .attr('title', SEditor.i18n.unpreview);
+                }
+                showSign = false;
+            });
     }
 
     function hidePreview(editor) {
@@ -53,22 +48,18 @@ SEditor.usePlugin('preview', function() {
         }
         hideSign = true;
 
-        setTimeout(function() {
-            if (showSign) {
-                return;
-            }
-            editor.isPreviewing = false;
-            editor.$view
-                .hide()
-                .animate({left: 0}, 250, function() {
-                    if (plugin.$button) {
-                        plugin.$button
-                            .removeClass('current')
-                            .text(SEditor.i18n.preview);
-                    }
-                    hideSign = false;
-                });
-        }, 100);
+        editor.isPreviewing = false;
+        editor.$view
+            .hide()
+            .animate({left: 0}, 250, function() {
+                if (plugin.$button) {
+                    plugin.$button
+                        .removeClass('current')
+                        .text(SEditor.i18n.preview)
+                        .attr('title', SEditor.i18n.preview);
+                }
+                hideSign = false;
+            });
     }
 
     plugin = {
@@ -89,8 +80,6 @@ SEditor.usePlugin('preview', function() {
                 $text = editor.$text,
                 $view = editor.$view = $(viewHtml)
                     .css({
-                        fontSize: $text.css('font-size'),
-                        lineHeight: $text.css('line-height'),
                         height: $text.height(),
                         width: option.viewWidth || 400
                     });
@@ -111,15 +100,11 @@ SEditor.usePlugin('preview', function() {
             }, editor);
 
             // setup viewWhenFocus
-            if (option.viewWhenFocus) {
-                plugin.hasButton = false;
-                $text
-                    .focus(function() {
-                        showPreview(editor);
-                    })
-                    .blur(function() {
-                        hidePreview(editor);
-                    });
+            //      default is true
+            if (!option.viewWhenFocus) {
+                $text.focus(function() {
+                    showPreview(editor);
+                });
             }
         },
         click: function(editor) {
