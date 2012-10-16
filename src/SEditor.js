@@ -87,7 +87,7 @@ var SEditor = (function() {
         if (width == null) {
             return this.$text.outerWidth();
         } else {
-            this.fire('seditorWidthChange', width);
+            this.fire('widthChange', width);
             // calculate (outerWidth - width) first
             this.$buttons.width(width - (this.$buttons.outerWidth() - this.$buttons.width()));
             this.$text.width(width - (this.$text.outerWidth() - this.$text.width()));
@@ -101,7 +101,7 @@ var SEditor = (function() {
         } else {
             var otherHeight = this.$all.height() - this.$text.height(),
                 textHeight = height - otherHeight;
-            this.fire('seditorHeightChange', height, textHeight);
+            this.fire('heightChange', height, textHeight);
             this.$text.height(textHeight);
             return this;
         }
@@ -109,7 +109,7 @@ var SEditor = (function() {
 
     Klass.$methods('remove', function(supr) {
         // fire event for plugins
-        this.fire('seditorRemove', this);
+        this.fire('remove', this);
         // reset html
         this.$text.detach();
         this.$all.replaceWith(this.$text);
@@ -162,7 +162,7 @@ var SEditor = (function() {
     Klass.$methods('_bindEvents', function() {
         var self = this,
             fireChange = Util.buffer(function() {
-                self.fire('seditorChange', self);
+                self.fire('textChange', self);
             }, self.option.changeTimeout || 250);   // default change timeout is 250
 
         // bind link events

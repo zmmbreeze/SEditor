@@ -17,9 +17,22 @@
  *
  */
 SEditor.usePlugin('preview', function() {
+    'use strict';
     var showSign = false,
         hideSign = false,
         plugin;
+
+    function updatePreview(editor) {
+        if (editor.isPreviewing) {
+            editor.$view.html(editor.parser.UBBtoHTML(editor.val()));
+        }
+    }
+
+    function updateHeight(editor) {
+        var $view = editor.$view,
+            otherHeight = $view.outerHeight() - $view.height();
+        $view.height(editor.$text.outerHeight() - otherHeight);
+    }
 
     function showPreview(editor) {
         if (showSign === true) {
@@ -31,7 +44,8 @@ SEditor.usePlugin('preview', function() {
         editor.$view
             .show()
             .animate({left: editor.$text.outerWidth()}, 250, function() {
-                editor.fire('seditorChange');
+                updatePreview(editor);
+                updateHeight(editor);
                 if (plugin.$button) {
                     plugin.$button
                         .addClass('current')
@@ -79,23 +93,15 @@ SEditor.usePlugin('preview', function() {
             var viewHtml = editor.option.viewHtml || '<div class="seditor-view"><div></div></div>',
                 $text = editor.$text,
                 $view = editor.$view = $(viewHtml)
-                    .css({
-                        height: $text.height(),
-                        width: option.viewWidth || 400
-                    });
+                    .css('width', option.viewWidth || 400);
             $text.after(editor.$view);
 
             // bind events
-            editor.on('seditorChange', function() {
-                // TODO use start & end
-                if (this.isPreviewing) {
-                    $view.html(this.parser.UBBtoHTML(this.val()));
-                }
-            }, editor);
+            editor.on('textChange', updatePreview, editor);
 
-            editor.on('seditorHeightChange', function(height, textHeight) {
-                if (this.isPreviewing) {
-                    this.$view.height(textHeight);
+            editor.on('heightChange', function(height, textHeight) {
+                if (editor.isPreviewing) {
+                    updateHeight(editor);
                 }
             }, editor);
 

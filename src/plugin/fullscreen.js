@@ -55,6 +55,8 @@ SEditor.usePlugin('fullscreen', function() {
         $button
             .text(SEditor.i18n.unfullscreen)
             .attr('title', SEditor.i18n.unfullscreen);
+        // fire event
+        editor.fire('leaveFullscreen');
     }
 
     function unFullscreen(editor, $button) {
@@ -71,6 +73,8 @@ SEditor.usePlugin('fullscreen', function() {
         $button
             .text(SEditor.i18n.fullscreen)
             .attr('title', SEditor.i18n.fullscreen);
+        // fire event
+        editor.fire('enterFullscreen');
     }
 
     var plugin = {

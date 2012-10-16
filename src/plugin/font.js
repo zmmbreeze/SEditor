@@ -15,7 +15,6 @@ SEditor.usePlugin(
                     editor.textApi.replaceSelectedText(function(selection) {
                         return Util.wrapTextByLine(selection.text, '[font='+font+']', '[/font]');
                     });
-                    editor.fire('seditorChange');
                 }
             }
         };

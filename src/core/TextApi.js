@@ -243,15 +243,19 @@ var TextApi = (function() {
 
 
     // --------------------------------------------------------
-    var Klass = function(textarea) {
+    var Klass = function(textarea, editor) {
             this.textarea = textarea;
+            this.editor = this.editor;
         },
         arraySlice = Array.prototype.slice,
         klassify = function(method) {
             return function() {
-                var args = arraySlice.call(arguments, 0);
+                var args = arraySlice.call(arguments, 0),
+                    re;
                 args.unshift(this.textarea);
-                return method.apply(null, args);
+                re = method.apply(null, args);
+                this.editor.fire('textChange', this.editor);
+                return re;
             };
         };
 

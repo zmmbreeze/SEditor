@@ -24,7 +24,6 @@ SEditor.usePlugin(
                 editor.textApi.replaceSelectedText(function(selection) {
                     return Util.wrapTextByLine(selection.text, '[color=' + color + ']', '[/color]');
                 });
-                editor.fire('seditorChange');
                 editor.buttonMenu.hide();
             }
         };

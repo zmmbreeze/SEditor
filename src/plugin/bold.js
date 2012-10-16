@@ -18,7 +18,6 @@ SEditor.usePlugin(
                 editor.textApi.replaceSelectedText(function(selection) {
                     return Util.wrapTextByLine(selection.text, '[bold]', '[/bold]');
                 });
-                editor.fire('seditorChange');
             }
         };
     },

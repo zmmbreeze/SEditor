@@ -15,7 +15,6 @@ SEditor.usePlugin(
                     selection = editor.textApi.getSelection();
                 if (url) {
                     editor.textApi.insertText('[video]' + url + '[/video]', selection.end, true);
-                    editor.fire('seditorChange');
                 }
             }
         };

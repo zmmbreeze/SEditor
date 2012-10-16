@@ -19,7 +19,6 @@ SEditor.usePlugin(
                             return '[url]' + url + '[/url]';
                         }
                     });
-                    editor.fire('seditorChange');
                 }
             }
         };

@@ -14,7 +14,6 @@ SEditor.usePlugin(
                 editor.textApi.replaceSelectedText(function(selection) {
                     return Util.wrapTextByLine(selection.text, '[italic]', '[/italic]');
                 });
-                editor.fire('seditorChange');
             }
         };
     },

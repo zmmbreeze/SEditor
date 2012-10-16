@@ -22,7 +22,6 @@ SEditor.usePlugin(
                     }
                     return text;
                 });
-                editor.fire('seditorChange');
             }
         };
     },

@@ -14,7 +14,6 @@ SEditor.usePlugin(
                     selection = editor.textApi.getSelection();
                 if (url) {
                     editor.textApi.insertText('[image]' + url + '[/image]', selection.end, true);
-                    editor.fire('seditorChange');
                 }
             }
         };
