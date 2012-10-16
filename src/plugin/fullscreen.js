@@ -20,11 +20,6 @@ SEditor.usePlugin('fullscreen', function() {
         $win = $(window);
 
     function updateWH(editor) {
-        oldWH = {
-            'height': editor.height(),
-            'width': editor.width()
-        };
-
         editor.width($win.width());
         editor.height($win.height());
     }
@@ -34,18 +29,29 @@ SEditor.usePlugin('fullscreen', function() {
             return;
         }
         editor.isFullscreen = true;
+
         var $all = editor.$all;
+        // remember old css style
         old = {
             'position' : $all.css('position'),
             'top': $all.css('top'),
             'left': $all.css('left')
         };
+        // update css style
         $all.css({
             'position': 'absolute',
             'top': 0,
             'left': 0
         });
+
+        // remember old width/height
+        oldWH = {
+            'height': editor.height(),
+            'width': editor.width()
+        };
+        // update width/height
         updateWH(editor);
+        // set button
         $button
             .text(SEditor.i18n.unfullscreen)
             .attr('title', SEditor.i18n.unfullscreen);
@@ -56,10 +62,12 @@ SEditor.usePlugin('fullscreen', function() {
             return;
         }
         editor.isFullscreen = false;
+        // reset css style
         editor.$all.css(old);
-
+        // reset old width/height
         editor.width(oldWH.width);
         editor.height(oldWH.height);
+        // set button
         $button
             .text(SEditor.i18n.fullscreen)
             .attr('title', SEditor.i18n.fullscreen);
