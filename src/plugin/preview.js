@@ -42,10 +42,10 @@ SEditor.usePlugin('preview', function() {
 
         editor.isPreviewing = true;
         editor.$view
-            .show()
-            .animate({left: editor.$text.outerWidth()}, 250, function() {
+            .show();
+        updateHeight(editor);
+        editor.$view.animate({left: editor.$text.outerWidth()}, 250, function() {
                 updatePreview(editor);
-                updateHeight(editor);
                 if (plugin.$button) {
                     plugin.$button
                         .addClass('current')
