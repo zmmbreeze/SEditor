@@ -188,6 +188,9 @@ var Util = (function() {
 
     /**
      * get css style in px
+     *      em => px
+     *      1.5 => px
+     *      100% not support
      *
      * @param {object} $obj jquery object
      * @param {string/array} cssStyleName name

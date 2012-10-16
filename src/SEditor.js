@@ -87,10 +87,11 @@ var SEditor = (function() {
         if (width == null) {
             return this.$text.outerWidth();
         } else {
-            this.fire('widthChange', width);
+            var textWidth = width - (this.$text.outerWidth() - this.$text.width());
+            this.fire('widthChange', width, textWidth);
             // calculate (outerWidth - width) first
             this.$buttons.width(width - (this.$buttons.outerWidth() - this.$buttons.width()));
-            this.$text.width(width - (this.$text.outerWidth() - this.$text.width()));
+            this.$text.width(textWidth);
             return this;
         }
     });
