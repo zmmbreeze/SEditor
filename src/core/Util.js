@@ -186,5 +186,51 @@ var Util = (function() {
         });
     };
 
+    /**
+     * get css style in px
+     *
+     * @param {object} $obj jquery object
+     * @param {string/array} cssStyleName name
+     *                                  eg:
+     *                                      'line-height'
+     *                                      [
+     *                                          'padding-top',
+     *                                          'padding-bottom',
+     *                                          'border-top',
+     *                                          'border-bottom',
+     *                                          'margin-top',
+     *                                          'margin-bottom'
+     *                                      ]
+     * @return {number} number in px
+     *
+     */
+    Klass.cssToPx = function($obj, cssStyleName) {
+        if ($obj.length === 0) {
+            throw new Error('Util.cssToPx(): Fist param is not a valid jquery object.');
+        }
+
+        if (Klass.type(cssStyleName) === 'array') {
+            var i, l,
+                all = 0;
+            for (i=0,l=cssStyleName.length; i<l; i++) {
+                all += Klass.cssToPx($obj, cssStyleName[i]);
+            }
+            return all;
+        }
+
+        var value = $obj.css(cssStyleName);
+        if (value.slice(-2) === 'px') {
+            return parseInt(value, 10);
+        } else {
+            var num = parseInt(value, 10);
+            if (cssStyleName === 'font-size') {
+                // normally it's not used
+                return num * Klass.cssToPx($obj.parent(), 'font-size');
+            } else {
+                return num * Klass.cssToPx($obj, 'font-size');
+            }
+        }
+    };
+
     return Klass;
 })();

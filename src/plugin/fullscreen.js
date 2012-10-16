@@ -57,6 +57,7 @@ SEditor.usePlugin('fullscreen', function() {
         }
         editor.isFullscreen = false;
         editor.$all.css(old);
+
         editor.width(oldWH.width);
         editor.height(oldWH.height);
         $button

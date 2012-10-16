@@ -85,12 +85,12 @@ var SEditor = (function() {
 
     Klass.$methods('width', function(supr, width) {
         if (width == null) {
-            return this.$text.width();
+            return this.$text.outerWidth();
         } else {
             this.fire('seditorWidthChange', width);
             // calculate (outerWidth - width) first
-            this.$buttons.width(width-(this.$buttons.outerWidth() - this.$buttons.width()));
-            this.$text.width(width-(this.$text.outerWidth() - this.$text.width()));
+            this.$buttons.width(width - (this.$buttons.outerWidth() - this.$buttons.width()));
+            this.$text.width(width - (this.$text.outerWidth() - this.$text.width()));
             return this;
         }
     });
@@ -99,8 +99,8 @@ var SEditor = (function() {
         if (height == null) {
             return this.$all.height();
         } else {
-            var buttonsHeight = this.$buttons.outerHeight(),
-                textHeight = height - buttonsHeight;
+            var otherHeight = this.$all.height() - this.$text.height(),
+                textHeight = height - otherHeight;
             this.fire('seditorHeightChange', height, textHeight);
             this.$text.height(textHeight);
             return this;
