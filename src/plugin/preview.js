@@ -16,11 +16,26 @@ SEditor.usePlugin('preview', function() {
     'use strict';
     var showSign = false,
         hideSign = false,
-        plugin;
+        originalWidth,
+        plugin,
+        $win = $(window);
 
     function updatePreview(editor) {
         if (editor.isPreviewing) {
             editor.$view.html(editor.parser.UBBtoHTML(editor.val()));
+        }
+    }
+
+    function updatePreviewPos(editor, width) {
+        var left = editor.$text.outerWidth();
+        if (editor.isPreviewing) {
+            editor.$view
+                .css('left', left)
+                .width(width);
+        } else {
+            editor.$view
+                .hide()
+                .css('left', 0);
         }
     }
 
@@ -30,71 +45,49 @@ SEditor.usePlugin('preview', function() {
         $view.height(editor.$text.outerHeight() - otherHeight);
     }
 
-
     function updateWidth(editor, width) {
-        if (editor.isFullscreen) {
+        if (editor.isPreviewing) {
             var $text = editor.$text,
-                $view = editor.$view,
-                useableWidth = width - Util.cssToPx($text, ['padding-left', 'border-left-width', 'border-right-width']),
-                textWidth = useableWidth / 2;
-            $text
-                .css('padding-right', textWidth)
-                .width(textWidth);
-            $view
-                .width(textWidth - Util.cssToPx($view, ['padding-left', 'padding-right', 'border-left-width', 'border-right-width']))
-                .css({
-                    'left': getViewLeft(editor),
-                    'z-index': 3
-                });
+                $view = editor.$view;
+            if (editor.isFullscreen) {
+                var useableWidth = width / 2,
+                    textWidth = useableWidth - ($text.outerWidth() - $text.width()),
+                    viewWidth = useableWidth - ($view.outerWidth() - $view.width());
+                $text.width(textWidth);
+                updatePreviewPos(editor, viewWidth);
+            } else {
+                updatePreviewPos(editor, originalWidth);
+            }
         }
-    }
-
-    function getViewLeft(editor) {
-        var left,
-            $text = editor.$text;
-
-        if (editor.isFullscreen) {
-            left = Util.cssToPx($text, ['padding-left', 'margin-left', 'border-left-width']) + $text.width();
-        } else {
-            left = $text.outerWidth();
-        }
-        return left;
     }
 
     function showPreview(editor) {
-        if (showSign === true) {
+        if (editor.isPreviewing) {
             return;
         }
-        showSign = true;
         editor.isPreviewing = true;
 
-        var left = getViewLeft(editor),
-            $view = editor.$view;
-
         // show view
-        $view.show();
+        editor.$view.show();
         updateHeight(editor);
         updatePreview(editor);
-        $view.css('left', left);
+        updateWidth(editor, $win.width());
         // update button
         changeButtonState(plugin.$button, true, SEditor.i18n.unpreview);
-        showSign = false;
     }
 
     function hidePreview(editor) {
-        if (hideSign === true) {
+        if (!editor.isPreviewing) {
             return;
         }
-        hideSign = true;
         editor.isPreviewing = false;
 
-        // hide menu
-        editor.$view
-            .hide()
-            .css('left', 0);
+        if (editor.isFullscreen) {
+            editor.width($win.width());
+        }
+        updatePreviewPos(editor);
         // update button
         changeButtonState(plugin.$button, false, SEditor.i18n.preview);
-        hideSign = false;
     }
 
     function changeButtonState($button, useCurrent, title) {
@@ -118,13 +111,13 @@ SEditor.usePlugin('preview', function() {
                     position: 'relative',
                     zIndex: 2
                 });
+            originalWidth = option.viewWidth || 400;
 
             // setup view div
             var viewHtml = editor.option.viewHtml || '<div class="seditor-view"><div></div></div>',
                 $text = editor.$text,
                 $view = editor.$view = $(viewHtml)
-                    .css('width', option.viewWidth || 400),
-                $win = $(window);
+                    .css('width', originalWidth);
             $text.after(editor.$view);
 
             // bind events
@@ -136,14 +129,6 @@ SEditor.usePlugin('preview', function() {
 
             editor.on('widthChange', function(width, textWidth) {
                 updateWidth(editor, width);
-            });
-
-            editor.on('enterFullscreen', function() {
-                updateWidth(editor, $win.width());
-            });
-
-            editor.on('leaveFullscreen', function() {
-                
             });
 
             // setup viewWhenFocus

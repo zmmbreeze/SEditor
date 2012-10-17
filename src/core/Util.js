@@ -191,6 +191,7 @@ var Util = (function() {
      *      em => px
      *      1.5 => px
      *      100% not support
+     *      medium/thin/... not support
      *
      * @param {object} $obj jquery object
      * @param {string/array} cssStyleName name

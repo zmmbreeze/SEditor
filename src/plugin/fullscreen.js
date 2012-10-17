@@ -17,6 +17,7 @@ SEditor.usePlugin('fullscreen', function() {
     'use strict';
     var old,
         oldWH,
+        oldOverflow,
         $win = $(window);
 
     function updateWH(editor) {
@@ -51,6 +52,9 @@ SEditor.usePlugin('fullscreen', function() {
             'height': editor.height(),
             'width': editor.width()
         };
+        // set overflow: hidden
+        oldOverflow = $('body').css('overflow');
+        $('body').css('overflow', 'hidden');
         // update width/height
         updateWH(editor);
         // set button
@@ -58,7 +62,7 @@ SEditor.usePlugin('fullscreen', function() {
             .text(SEditor.i18n.unfullscreen)
             .attr('title', SEditor.i18n.unfullscreen);
         // fire event
-        editor.fire('leaveFullscreen');
+        editor.fire('enterFullscreen');
     }
 
     function unFullscreen(editor, $button) {
@@ -68,15 +72,18 @@ SEditor.usePlugin('fullscreen', function() {
         editor.isFullscreen = false;
         // reset css style
         editor.$all.css(old);
+        // set overflow
         // reset old width/height
         editor.width(oldWH.width);
         editor.height(oldWH.height);
+        // put this after editor.height or ie 6 crash
+        $('body').css('overflow', oldOverflow);
         // set button
         $button
             .text(SEditor.i18n.fullscreen)
             .attr('title', SEditor.i18n.fullscreen);
         // fire event
-        editor.fire('enterFullscreen');
+        editor.fire('leaveFullscreen');
     }
 
     var plugin = {
@@ -85,8 +92,6 @@ SEditor.usePlugin('fullscreen', function() {
         init: function(editor, option) {
             $win.resize(Util.buffer(function() {
                 if (editor.isFullscreen) {
-                    updateWH(editor);
-                    // adjust for scroll bar
                     updateWH(editor);
                 }
             }));

@@ -88,10 +88,11 @@ var SEditor = (function() {
             return this.$text.outerWidth();
         } else {
             var textWidth = width - (this.$text.outerWidth() - this.$text.width());
-            this.fire('widthChange', width, textWidth);
             // calculate (outerWidth - width) first
             this.$buttons.width(width - (this.$buttons.outerWidth() - this.$buttons.width()));
             this.$text.width(textWidth);
+            // fire event
+            this.fire('widthChange', width, textWidth);
             return this;
         }
     });
@@ -102,8 +103,9 @@ var SEditor = (function() {
         } else {
             var otherHeight = this.$all.height() - this.$text.height(),
                 textHeight = height - otherHeight;
-            this.fire('heightChange', height, textHeight);
             this.$text.height(textHeight);
+            // fire event
+            this.fire('heightChange', height, textHeight);
             return this;
         }
     });
