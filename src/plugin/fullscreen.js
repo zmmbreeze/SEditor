@@ -20,8 +20,10 @@ SEditor.usePlugin('fullscreen', function() {
         $win = $(window);
 
     function updateWH(editor) {
-        editor.width($win.width());
-        editor.height($win.height());
+        var w = $win.width(),
+            h = $win.height();
+        editor.width(w);
+        editor.height(h);
     }
 
     function fullscreen(editor, $button) {
@@ -83,6 +85,8 @@ SEditor.usePlugin('fullscreen', function() {
         init: function(editor, option) {
             $win.resize(Util.buffer(function() {
                 if (editor.isFullscreen) {
+                    updateWH(editor);
+                    // adjust for scroll bar
                     updateWH(editor);
                 }
             }));
