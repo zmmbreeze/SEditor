@@ -23,6 +23,9 @@ var SEditor = (function() {
          *                      viewHtml
          *                      linkHtml
          *                      width   => default is parent's width
+         *                      selectionPrefix => default is '<span class="selection">'
+         *                      selectionSuffix => default is '</span>'
+         *                      selectionSelector => default is '.selection'
          *
          */
         Klass = Event.$extend(function(supr, selector, option) {
@@ -33,9 +36,12 @@ var SEditor = (function() {
             this.option = option || {};
             this._loadHtml();
             this._bindEvents();
+            this.parser = new this.constructor.UBB({
+                selectionPrefix: this.option.selectionPrefix || '<span class="selection">',
+                selectionSuffix: this.option.selectionSuffix || '</span>'
+            });
+            this.textApi = new TextApi(this.$text[0], this);
             this._loadAllPlugin();
-            this.parser = new this.constructor.UBB();
-            this.textApi = new TextApi(this.$text[0]);
         });
 
     Klass.UBB = UBB;

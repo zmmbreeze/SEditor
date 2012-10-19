@@ -30,12 +30,7 @@ SEditor.usePlugin(
                 href = node.attr ? node.attr.replace(/^\ href\=/, '') : '';
             if (!node.attr) {
                 // for [url]http://www.guokr.com/question/[bold]265263[/bold]/[/url]
-                for (i=0,l=node.length; i<l; i++) {
-                    t = node[i];
-                    if (t.name === '#text') {
-                        href += t.value;
-                    }
-                }
+                href = Util.getTextOfUBBNode(node);
             }
             return '<a href="' + href + '">' + sonString + '</a>';
         },

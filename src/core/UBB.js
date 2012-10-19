@@ -9,11 +9,13 @@
  *          remove jquery require
  *          fix UBBtoHTML whitespace convert to &nbsp;
  *          seperate tagParser
+ *      0.6 add selection support
+ *          add UBB.addTag/UBB.removeTag method
  */
 
 
 /*jshint undef:true, browser:true, noarg:true, curly:true, regexp:true, newcap:true, trailing:false, noempty:true, regexp:false, strict:true, evil:true, funcscope:true, iterator:true, loopfunc:true, multistr:true, boss:true, eqnull:true, eqeqeq:false, undef:true */
-/*global */
+/*global*/
 
 var UBB = (function () {
     'use strict';
@@ -80,6 +82,11 @@ var UBB = (function () {
                 var textNode = Tree.createNode('#text');
                 textNode.value = text;
                 return textNode;
+            },
+            createCursorNode: function() {
+                var cursorNode = Tree.createNode('#cursor');
+                cursorNode.value = '';
+                return cursorNode;
             }
         },
         upperReg = /([A-Z])/g,
@@ -87,9 +94,6 @@ var UBB = (function () {
         numReg = /^-?\d/,
         numpxReg = /^-?\d+(?:px)?$/i,
         ubbTagNameReg = /\[(\/)?([a-zA-Z]+)/,
-        startWhiteSpaceReg = /^[\u0020\u200B\u200A\u3000\u2000]+(?!$)/,
-        startToEndWhiteSpaceReg = /^[\u0020\u200B\u200A\u3000\u2000]+/,
-        whiteSpaceReg = /[\u0020\u200B\u200A\u3000\u2000]+/g,
         /*
          * Custom tags
          */
@@ -180,17 +184,12 @@ var UBB = (function () {
              *         1: text and inline-block element
              *         2: br, or block element(height==0)
              *         3: block element
-             *         4: inline element
-             *         5: pre string trim '\n'
-             *         6: pre string only trim start '\n'
-             *         7: string only trim end '\n'
-             *         8: not trim '\n'
              *
-             *              1        |  2        |   3          |  4        |   5         |  6        | 7         | 8        |
-             *         0 |  1/false  |  2/false  |   3/false    |  0/false  |   2/false   |  1/false  | 2/false   | 1/false  |
-             *         1 |  1/false  |  2/false  |   3/true     |  1/false  |   NaN       |  NaN      | 2/false   | 1/false  |
-             *         2 |  1/true   |  2/true   |   3/true     |  2/false  |   NaN       |  NaN      | 2/true    | 1/true   |
-             *         3 |  1/true   |  2/true   |   3/true     |  3/false  |   NaN       |  NaN      | 2/true    | 1/true   |
+             *              text 1   |  br 2     |   block element 3 |  inline 4 |  pre string trim '\n' 5 |  pre string only trim start '\n' 6 | string only trim end '\n' 7 | not trim '\n' 8
+             *         0 |  1/false  |  2/false  |   3/false         |  0/false     2/false                |  1/false                           | 2/false                     | 1/false
+             *         1 |  1/false  |  2/false  |   3/true          |  1/false     NaN                    |  NaN                               | 2/false                     | 1/false
+             *         2 |  1/true   |  2/true   |   3/true          |  2/false     NaN                    |  NaN                               | 2/true                      | 1/true
+             *         3 |  1/true   |  2/true   |   3/true          |  3/false     NaN                    |  NaN                               | 2/true                      | 1/true
              *
              * @param {object} boxState
              * @param {number} incomming incomming element type
@@ -218,12 +217,12 @@ var UBB = (function () {
                 count = newLineRules[key][incomming];
                 if (count && node) {
                     // add new line
-                    node.suffix = (node.suffix || '') + '\n';
+                    node.suffix = (node.suffix || '') + (count == 1 ? '\n' : '\n\n');
                 }
                 if (incomming in convertRules) {
                     boxState.key = convertRules[incomming];
-                    boxState.node = re;
                 }
+                boxState.node = re;
             },
             /**
              * parse jquery node to ubb text
@@ -236,7 +235,7 @@ var UBB = (function () {
              * @return {string} ubb text of node and it's children
              */
             parseNode: function(node, nodeName, nodeType, setting, re, state) {
-                var tagName, tagParser, text, inCommingState,
+                var tagName, tagParser, text,
                     keepNewLine, keepWhiteSpace,
                     trimStartNewLine, trimEndNewLine,
                     boxStates = state.boxStates,
@@ -270,54 +269,8 @@ var UBB = (function () {
                         // trim whitespace
                         // collapse whitespace
                         // keep nont-breaking space
-
-
-                        // previous node is not inline element
-                        if (boxState.key !== 1) {
-                            // trim start whitespace
-                            //      if text are all whitespace,
-                            //      then keep last whitespace
-                            text = text.replace(startWhiteSpaceReg, '');
-                            // reset collapseTextNode
-                            boxState.collapseTextNode = null;
-                        // if collapse with previous text node
-                        } else if (boxState.collapseTextNode) {
-                            // if  text like 'xxx'
-                            //     text ==> 'xxx '
-                            // if  text equal ' '
-                            //     not change
-                            if (boxState.collapseTextNode.text.slice(-1) !== ' ') {
-                                boxState.collapseTextNode.text += ' ';
-                            }
-                            // trim start whitespace
-                            text = text.replace(startToEndWhiteSpaceReg, '');
-                        } else {
-                            // collapse start whitespace
-                            text = text.replace(startToEndWhiteSpaceReg, ' ');
-                        }
-
-                        // collapse whitespace
-                        text = text.replace(whiteSpaceReg, ' ');
-
-                        // collapse other whitespace
-                        if (text.slice(-1) === ' ') {
-                            // if  text like 'xxx '
-                            //     text ==> 'xxx'
-                            // if  text equal ' '
-                            //     text ==> ' '
-                            if (text.length !== 1) {
-                                text = text.slice(0, -1);
-                            }
-                            boxState.collapseTextNode = re;
-                        } else {
-                            boxState.collapseTextNode = null;
-                        }
-                    } else {
-                        if (boxState.collapseTextNode) {
-                            boxState.collapseTextNode.text += ' ';
-                        }
-                        // reset collapseTextNode
-                        boxState.collapseTextNode = null;
+                        text = text.replace(/^[\u0020\u200B\u200A\u3000\u2000]*|[\u0020\u200B\u200A\u3000\u2000]*$/g, '')
+                                   .replace(/[\u0020\u200B\u200A\u3000\u2000]{2,}/g, ' ');
                     }
 
                     text = Util.ubbEscape(text);
@@ -367,23 +320,21 @@ var UBB = (function () {
                 case 1:
                     if (nodeName === 'br') {
                         // br
-                        inCommingState = 2;
+                        Util.changeState(boxState, 2, re);
                     } else {
                         if (re.hasBlockBox) {
                             if (node.offsetHeight > 0) {
                                 // block element
-                                inCommingState = 3;
+                                Util.changeState(boxState, 3, re);
                             } else {
                                 // <div></div>
-                                inCommingState = 2;
+                                Util.changeState(boxState, 2, re);
                             }
                         } else {
                             // inline element
-                            inCommingState = Util.isInlineBlock(node, nodeName) ? 1 : 4;
+                            Util.changeState(boxState, Util.isInlineBlock(node, nodeName) ? 1 : 4, re);
                         }
                     }
-
-                    Util.changeState(boxState, inCommingState, re);
                     break;
                 default:
                     break;
@@ -426,6 +377,12 @@ var UBB = (function () {
              * @return {boolean}
              */
             canContains: function(father, son, ubbTagsOrder) {
+                if (father.isRoot || son.name === '#cursor') {
+                    return true;
+                }
+                if (father.name === '#cursor') {
+                    return false;
+                }
                 var canContainsTags = ubbTagsOrder[father.name];
                 return typeof canContainsTags === 'boolean' ? canContainsTags : canContainsTags[son.name];
             },
@@ -437,7 +394,7 @@ var UBB = (function () {
              */
             pushOpenUbbTag: function(node, tag, ubbTagsOrder) {
                 var autoClosedNode;
-                while (!node.isRoot && !Util.canContains(node, tag, ubbTagsOrder)) {
+                while (!Util.canContains(node, tag, ubbTagsOrder)) {
                     if (autoClosedNode) {
                         autoClosedNode = node.clone().append(autoClosedNode);
                     } else {
@@ -523,9 +480,12 @@ var UBB = (function () {
              * @param {object} ubbTagsOrder
              * @param {object} wrapUbbTags
              * @param {boolean} needEncodeHtml
+             * @param {object} selection object descript the selection range
+             *                              {start: 10, end: 100}
+             *                              by default is {start: 0, end: 0}
              * @return {array} tag list
              */
-            scanUbbText: function(text, setting, needEncodeHtml) {
+            scanUbbText: function(text, setting, needEncodeHtml, selection) {
                 // encode html
                 if (needEncodeHtml) {
                     text = Util.htmlEncode(text);
@@ -535,20 +495,64 @@ var UBB = (function () {
                     ubbTagsOrder = setting.ubbTagsOrder,
                     wrapUbbTags = setting.wrapUbbTags,
                     // state value represent next char not be escape
-                    NOESCAPE = 0,
+                    NORMAL = 0,
                     // state value represent next char should be escape
                     ESCAPE = 1,
+                    // state value represent buf is a tag name not normal text
+                    PROCESSINGTAG = 2,
+                    // state value represent need to append start cursor after appended a normal tag
+                    APPENDSTARTCURSOR = 3,
+                    // state value represent need to append end cursor after appended a normal tag
+                    APPENDENDCURSOR = 4,
+                    // state value represent need to append start and end cursor after appended a normal tag
+                    APEENDCURSORS = 5,
                     // state value
-                    state = NOESCAPE,
-                    j = 0,
+                    state = NORMAL,
                     i = 0,
                     l = text.length,
+                    selectionStart = selection ? (selection.start || 0) : 0,
+                    selectionEnd = selection ? (selection.end || selectionStart) : 0,
                     buf = '',
                     root = Tree.createNode(),
                     node = root;
                 // mark root
                 root.isRoot = true;
+                // validate selection
+                if (selectionEnd < selectionStart) {
+                    throw new Error('UBBtoHTML(): selection end cursor was before start cursor.');
+                }
+                // do scan
                 for(; i<l; i++) {
+                    // push start cursor
+                    if (i === selectionStart) {
+                        // not processing tag
+                        // then push start cursor tag
+                        if (state !== PROCESSINGTAG) {
+                            if (buf) {
+                                node.append(Tree.createTextNode(buf));
+                                buf = '';
+                            }
+                            node = Util.pushOpenUbbTag(node, Tree.createCursorNode(), ubbTagsOrder);
+                        } else {
+                            state = APPENDSTARTCURSOR;
+                        }
+                    }
+                    // push end cursor
+                    if (i === selectionEnd) {
+                        // not processing tag or need to append start cursor
+                        // then push end cursor tag
+                        if (state !== PROCESSINGTAG && state !== APPENDSTARTCURSOR) {
+                            if (buf) {
+                                node.append(Tree.createTextNode(buf));
+                                buf = '';
+                            }
+                            node = Util.pushCloseUbbTag(node, '#cursor');
+                        } else {
+                            state = state === APPENDSTARTCURSOR ? APEENDCURSORS : APPENDENDCURSOR;
+                        }
+                    }
+
+                    // push normal tags / text / \n
                     c = text.charAt(i);
                     switch(c) {
                     case '\\':
@@ -557,18 +561,18 @@ var UBB = (function () {
                     case '[':
                         if (state === ESCAPE) {
                             buf += '[';
-                            state = NOESCAPE;
+                            state = NORMAL;
                         } else {
                             if (buf) {
                                 node.append(Tree.createTextNode(buf));
                             }
                             buf = '[';
+                            state = PROCESSINGTAG;
                         }
                         break;
                     case ']':
                         if (state === ESCAPE) {
                             buf += ']';
-                            state = NOESCAPE;
                         } else {
                             r = ubbTagNameReg.exec(buf);
                             // is tag
@@ -592,11 +596,21 @@ var UBB = (function () {
                                 node.append(Tree.createTextNode(buf + ']'));
                             }
                             buf = '';
+
+                            // append start cursor
+                            if (state === APPENDSTARTCURSOR || state === APEENDCURSORS) {
+                                node = Util.pushOpenUbbTag(node, Tree.createCursorNode(), ubbTagsOrder);
+                            }
+                            // append end cursor
+                            if (state === APPENDENDCURSOR || state === APEENDCURSORS) {
+                                node = Util.pushCloseUbbTag(node, '#cursor');
+                            }
                         }
+                        state = NORMAL;
                         break;
                     case '\n':
                         if (state === ESCAPE) {
-                            state = NOESCAPE;
+                            state = NORMAL;
                         }
                         if (buf) {
                             node.append(Tree.createTextNode(buf));
@@ -606,7 +620,7 @@ var UBB = (function () {
                         break;
                     default:
                         if (state === ESCAPE) {
-                            state = NOESCAPE;
+                            state = NORMAL;
                         }
                         buf += c;
                         break;
@@ -629,7 +643,8 @@ var UBB = (function () {
             parseUbbNode: function(node, sonString, setting, state) {
                 var tagsParser = setting.tags,
                     tagInfo;
-                if (node.name === '#text') {
+                switch(node.name) {
+                case '#text':
                     if (node.value === '\n') {
                         if (state.nobr) {
                             state.nobr = false;
@@ -641,11 +656,17 @@ var UBB = (function () {
                         state.nobr = false;
                         return node.value.replace(/\s/g, '&nbsp;');
                     }
-                } else if ((tagInfo = tagsParser[node.name]) && tagInfo.parseUBB) {
-                    if (tagInfo.isBlock) {
-                        state.nobr = true;
+                    break;
+                case '#cursor':
+                    return setting.selectionPrefix + sonString + setting.selectionSuffix;
+                default:
+                    if ((tagInfo = tagsParser[node.name]) && tagInfo.parseUBB) {
+                        if (tagInfo.isBlock) {
+                            state.nobr = true;
+                        }
+                        return tagInfo.parseUBB(node, sonString, setting);
                     }
-                    return tagInfo.parseUBB(node, sonString, setting);
+                    break;
                 }
             },
             /**
@@ -656,9 +677,12 @@ var UBB = (function () {
              * @return {string} ubb text of node and it's children
              */
             fixUbbNode: function(node, sonString, setting) {
-                if (node.name === '#text') {
+                switch(node.name) {
+                case '#text':
                     return Util.ubbEscape(node.value);
-                } else {
+                case '#cursor':
+                    return sonString;
+                default:
                     return '['+node.name+(node.attr || '')+']'+sonString+'[/'+node.name+']';
                 }
             }
@@ -686,7 +710,7 @@ var UBB = (function () {
             // push state
             if (nodeType === 1) {
                 // element has block box
-                if (!notRoot || Util.hasBlockBox(node)) {
+                if (Util.hasBlockBox(node)) {
                     state.boxStates.push({
                         key: 0,
                         node: null
@@ -838,10 +862,9 @@ var UBB = (function () {
      */
     function UBB(setting) {
         this.setting = UBB.mix({
-                            defaultColor: '#000000',            // color of all text element
-                            linkDefaultColor: '#006699',        // color of a elment
-                            flashImage: '/skin/imgs/flash.png'  // flash image to show
-                       }, setting);
+                selectionPrefix: '',
+                selectionSuffix: ''
+            }, setting);
         this.setting.tags = UBB.mix(tagsParser, this.setting.tags);
         this.setting.ubbTagsOrder = {};
         this.setting.wrapUbbTags = {};
@@ -955,8 +978,8 @@ var UBB = (function () {
      * @param {string} ubb text
      * @return {string} html text
      */
-    UBB.prototype.UBBtoHTML = function(ubb) {
-        return parseUbb(Util.scanUbbText(ubb, this.setting, true), this.setting);
+    UBB.prototype.UBBtoHTML = function(ubb, selection) {
+        return parseUbb(Util.scanUbbText(ubb, this.setting, true, selection), this.setting);
     };
     /**
      * fix error ubb text
@@ -967,66 +990,4 @@ var UBB = (function () {
         return fixUbb(Util.scanUbbText(ubb, this.setting), this.setting);
     };
     return UBB;
-})();
-
-
-/**
- * UBBParser
- * @author mzhou / @zhoumm
- * @log 0.1
- */
-(function() {
-    'use strict';
-    UBB.extend(UBB.Util, {
-        /**
-         * if fontWeight is bold
-         * @param {string} fontWeight
-         * @return {boolean}
-         */
-        isBold: function(fontWeight) {
-            var number = parseInt(fontWeight, 10);
-            if(isNaN(number)) {
-                return (/^(bold|bolder)$/).test(fontWeight);
-            } else {
-                return number > 400;
-            }
-        },
-        /**
-         * if fontStyle is italic
-         * @param {string} fontStyle
-         * @return {boolean}
-         */
-        isItalic: function(fontStyle) {
-            return (/^(italic|oblique)$/).test(fontStyle);
-        },
-        /**
-         * change RGB to HEX
-         * @param {string} oldColor rbg color
-         * @return {string} hex color
-         */
-        RGBtoHEX: function (oldColor) {
-            var i,
-                RGB2HexValue = '',
-                numbers,
-                regExp = /([0-9]+)[, ]+([0-9]+)[, ]+([0-9]+)/,
-                array = regExp.exec(oldColor);
-            if (!array) {
-                if (oldColor.length === 4) {
-                    numbers = oldColor.split('').slice(1);
-                    RGB2HexValue = '#';
-                    for (i=0; i<3; i++) {
-                        RGB2HexValue += numbers[i]+numbers[i];
-                    }
-                } else {
-                    RGB2HexValue = oldColor;
-                }
-            } else {
-                for (i = 1; i < array.length; i++) {
-                    RGB2HexValue += ('0' + parseInt(array[i], 10).toString(16)).slice(-2);
-                }
-                RGB2HexValue = '#' + RGB2HexValue;
-            }
-            return RGB2HexValue;
-        }
-    });
 })();

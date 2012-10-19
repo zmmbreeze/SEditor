@@ -6,6 +6,7 @@
  * @log 0.1 add insertCaret api
  *      0.2 remove jquery require
  *      0.3 replaceSelectedText api add transform function support
+ *      0.4 add all value for getSelection's return value
  *
  * License Rangy Text Inputs, a cross-browser textarea and text input library plug-in for jQuery.
  * Part of Rangy, a cross-browser JavaScript range and selection library
@@ -22,7 +23,7 @@
  *
  */
 /*jshint undef:true, browser:true, noarg:true, curly:true, regexp:true, newcap:true, trailing:false, noempty:true, regexp:false, strict:true, evil:true, funcscope:true, iterator:true, loopfunc:true, multistr:true, boss:true, eqnull:true, eqeqeq:false, undef:true */
-/*global Proto:false, Util:false */
+/*global Proto:false, Util:false, $:false */
 
 var TextApi = (function() {
     'use strict';
@@ -70,8 +71,7 @@ var TextApi = (function() {
             start: start,
             end: end,
             length: end - start,
-            text: v.slice(start, end),
-            all: v
+            text: v.slice(start, end)
         };
     }
 
@@ -245,7 +245,7 @@ var TextApi = (function() {
     // --------------------------------------------------------
     var Klass = function(textarea, editor) {
             this.textarea = textarea;
-            this.editor = this.editor;
+            this.editor = editor;
         },
         arraySlice = Array.prototype.slice,
         klassify = function(method) {
@@ -267,6 +267,50 @@ var TextApi = (function() {
     Klass.prototype.insertText = klassify(insertText);
     Klass.prototype.replaceSelectedText = klassify(replaceSelectedText);
     Klass.prototype.surroundSelectedText = klassify(surroundSelectedText);
+    /**
+     * fire selectionChange event for editor, if it truely change
+     * @param {object} textApi
+     */
+    function fireSelectionChange(textApi) {
+        var o = textApi.selection,
+            n = textApi.getSelection();
+        if (!o || (o.start !== n.start) || (o.end !== n.end)) {
+            textApi.editor.fire('selectionChange');
+            textApi.selection = n;
+        }
+    }
+    /**
+     * start detect selectionChange event
+     */
+    Klass.prototype.detectSelectionChangeEvent = function() {
+        if (!this._selectionChangeBinded) {
+            var self = this;
+            if (typeof document.onselectionchange !== 'undefined') {
+                $(document).bind('selectionchange.textapi', function() {
+                    fireSelectionChange(self);
+                });
+            } else {
+                var timeout = function() {
+                    fireSelectionChange(self);
+                    this._selectionChangeTimeout = setTimeout(timeout, 500);
+                };
+                this._selectionChangeTimeout = setTimeout(timeout, 500);
+            }
+            this._selectionChangeBinded = true;
+        }
+    };
+    /**
+     * stop detect selectionChange event
+     */
+    Klass.prototype.cancelSelectionChangeEvent = function() {
+        if (this._selectionChangeBinded) {
+            if (this._selectionChangeTimeout) {
+                clearTimeout(this._selectionChangeTimeout);
+            } else {
+                $(document).unbind('selectionchange.textapi');
+            }
+        }
+    };
 
     return Klass;
 })();

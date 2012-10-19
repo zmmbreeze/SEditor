@@ -14,3 +14,16 @@
     border: 1px solid #d3d3d3;
     border-left: none;
 }
+/* @module: selection */
+.seditor-view .selection {
+    color: #FFF;
+    background-color: blue;
+}
+.seditor-view .selection-single {
+    padding-left: 3px;
+    background-color: #000;
+}
+.seditor-view .selection * {
+    background-color: blue;
+    color: #FFF;
+}

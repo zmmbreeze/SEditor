@@ -236,5 +236,32 @@ var Util = (function() {
         }
     };
 
+    /**
+     * get child node's of text
+     *
+     * @param {object} node
+     * @return {string} text
+     *
+     */
+    Klass.getTextOfUBBNode = function (node) {
+        if (node.length) {
+            var child,
+                re = '',
+                i = 0,
+                l = node.length;
+            for (; i<l; i++) {
+                child = node[i];
+                if (child.name === '#text') {
+                    re += child.value;
+                } else {
+                    re += this.getTextOfUBBNode(child);
+                }
+            }
+            return re;
+        } else {
+            return '';
+        }
+    };
+
     return Klass;
 })();

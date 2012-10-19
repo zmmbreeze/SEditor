@@ -1,7 +1,7 @@
 
 
 /*jshint undef:true, browser:true, noarg:true, curly:true, regexp:true, newcap:true, trailing:false, noempty:true, regexp:false, strict:false, evil:true, funcscope:true, iterator:true, loopfunc:true, multistr:true, boss:true, eqnull:true, eqeqeq:false, undef:true */
-/*global SEditor:true, prompt:false */
+/*global SEditor:true, prompt:false, Util:false */
 
 SEditor.usePlugin(
     'video',
@@ -21,12 +21,8 @@ SEditor.usePlugin(
     },
     // [option] ubb tag parser
     {
-        parseHTML: function(nodeName, node, re) {
-            if (nodeName === 'img' && !node.getAttribute('data-src')) {
-                re.prefix = '[image]' + node.getAttribute('src') + '[/image]' + (re.prefix || '');
-            }
-        },
         parseUBB: function(node, sonString, setting) {
+            sonString = Util.getTextOfUBBNode(node);
             return sonString ? ('<img src="' + sonString + '"/>') : '';
         },
         canWrap: 0,
