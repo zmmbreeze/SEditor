@@ -24,23 +24,34 @@ SEditor.usePlugin('preview', function() {
 
     function updatePreview(editor) {
         if (editor.isPreviewing) {
-            editor.$view.html(editor.parser.UBBtoHTML(editor.val(), editor.textApi.selection));
-            editor.fire('previewUpdate', editor.$view);
-            var option = editor.option,
-                $selections = $('.' + option.selectionClass),
-                num = $selections.length;
+            // update html
+            var $view = editor.$view,
+                option, $selections, num;
+            $view.html(editor.parser.UBBtoHTML(editor.val(), editor.textApi.selection));
+
+            // update selection
+            option = editor.option;
+            $selections = $('.' + option.selectionClass);
+            num = $selections.length;
             switch(num) {
             case 1:
+                // add single class
                 if ($selections.text() === '') {
                     $selections.addClass(option.selectionSingleClass);
                 }
+                Util.scrollYTo($view, $selections);
                 break;
             case 0:
+                // none selection
                 break;
             default:
+                // not single selection
                 $selections.removeClass(option.selectionSingleClass);
+                Util.scrollYTo($view, $selections);
                 break;
             }
+            // fire event
+            editor.fire('previewUpdate', editor.$view);
         }
     }
 
@@ -137,7 +148,8 @@ SEditor.usePlugin('preview', function() {
             var viewHtml = editor.option.viewHtml || '<div class="seditor-view"><div></div></div>',
                 $text = editor.$text,
                 $view = editor.$view = $(viewHtml)
-                    .css('width', originalWidth);
+                    .css('width', originalWidth),
+                bufferedUpdatePreview;
             $text.after(editor.$view);
 
             // bind events
@@ -145,9 +157,12 @@ SEditor.usePlugin('preview', function() {
             editor.on('remove', function() {
                 this.textApi.cancelSelectionChangeEvent();
             }, editor);
-            editor.on('selectionChange', function() {
-                updatePreview(this);
-            }, editor);
+
+            bufferedUpdatePreview = Util.buffer(function() {
+                updatePreview(editor);
+            });
+            editor.on('selectionChange', bufferedUpdatePreview);
+            editor.on('textChange', bufferedUpdatePreview);
 
             editor.on('heightChange', function(height, textHeight) {
                 updateHeight(editor);

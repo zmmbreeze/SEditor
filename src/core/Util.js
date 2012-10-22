@@ -207,7 +207,6 @@ var Util = (function() {
      *                                      ]
      * @return {number} number in px
      *
-     */
     Klass.cssToPx = function($obj, cssStyleName) {
         if ($obj.length === 0) {
             throw new Error('Util.cssToPx(): Fist param is not a valid jquery object.');
@@ -235,6 +234,7 @@ var Util = (function() {
             }
         }
     };
+     */
 
     /**
      * get child node's of text
@@ -260,6 +260,25 @@ var Util = (function() {
             return re;
         } else {
             return '';
+        }
+    };
+
+    Klass.scrollYTo = function($node, $inner) {
+        var position = $inner.position(),
+            node = $node[0],
+            top = node.scrollTop,
+            bottom = top + $node.height(),
+            pointT = position.top + top,
+            newScrollTop;
+        if (pointT != null && pointT < top || pointT > bottom) {
+            newScrollTop = position.top - $node.height() / 2;
+            if (newScrollTop < 0) {
+                newScrollTop = pointT;
+            }
+            node.scrollTop = newScrollTop;
+            return true;
+        } else {
+            return false;
         }
     };
 

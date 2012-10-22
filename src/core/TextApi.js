@@ -7,6 +7,7 @@
  *      0.2 remove jquery require
  *      0.3 replaceSelectedText api add transform function support
  *      0.4 add all value for getSelection's return value
+ *      0.5 add detectSelectionChangeEvent
  *
  * License Rangy Text Inputs, a cross-browser textarea and text input library plug-in for jQuery.
  * Part of Rangy, a cross-browser JavaScript range and selection library
@@ -268,35 +269,24 @@ var TextApi = (function() {
     Klass.prototype.replaceSelectedText = klassify(replaceSelectedText);
     Klass.prototype.surroundSelectedText = klassify(surroundSelectedText);
     /**
-     * fire selectionChange event for editor, if it truely change
-     * @param {object} textApi
-     */
-    function fireSelectionChange(textApi) {
-        var o = textApi.selection,
-            n = textApi.getSelection();
-        if (!o || (o.start !== n.start) || (o.end !== n.end)) {
-            textApi.selection = n;
-            textApi.editor.fire('selectionChange');
-        }
-    }
-    /**
      * start detect selectionChange event
      */
     Klass.prototype.detectSelectionChangeEvent = function() {
         if (!this._selectionChangeBinded) {
-            var self = this;
-            if (typeof document.onselectionchange !== 'undefined') {
-                $(document).bind('selectionchange.textapi', function() {
-                    fireSelectionChange(self);
-                });
-            } else {
-                var timeout = function() {
-                    fireSelectionChange(self);
-                    this._selectionChangeTimeout = setTimeout(timeout, 500);
+            // don't use selectionchange event it will cause ie bug
+            var self = this,
+                timeout = function() {
+                    var o = self.selection,
+                        n = self.getSelection();
+                    if (!o || (o.start !== n.start) || (o.end !== n.end)) {
+                        self.selection = n;
+                        self.editor.fire('selectionChange');
+                    }
+
+                    self._selectionChangeTimeout = setTimeout(timeout, 500);
                 };
-                this._selectionChangeTimeout = setTimeout(timeout, 500);
-            }
-            this._selectionChangeBinded = true;
+            self._selectionChangeTimeout = setTimeout(timeout, 500);
+            self._selectionChangeBinded = true;
         }
     };
     /**
@@ -304,11 +294,7 @@ var TextApi = (function() {
      */
     Klass.prototype.cancelSelectionChangeEvent = function() {
         if (this._selectionChangeBinded) {
-            if (this._selectionChangeTimeout) {
-                clearTimeout(this._selectionChangeTimeout);
-            } else {
-                $(document).unbind('selectionchange.textapi');
-            }
+            clearTimeout(this._selectionChangeTimeout);
         }
     };
 

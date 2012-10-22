@@ -1,3 +1,24 @@
+@-webkit-keyframes seditorglint {
+    0%{background-color: #333;}
+    100%{background-color: #FFF;}
+}
+@-moz-keyframes seditorglint {
+    0%{background-color: #333;}
+    100%{background-color: #FFF;}
+}
+@-ms-keyframes seditorglint {
+    0%{background-color: #333;}
+    100%{background-color: #FFF;}
+}
+@-o-keyframes seditorglint {
+    0%{background-color: #333;}
+    100%{background-color: #FFF;}
+}
+@keyframes seditorglint {
+    0%{background-color: #333;}
+    100%{background-color: #FFF;}
+}
+
 .seditor-view {
     display: none;
     position: absolute;
@@ -20,8 +41,13 @@
     background-color: blue;
 }
 .seditor-view .selection-single {
+    margin: 0 2px;
     padding-left: 3px;
-    background-color: #000;
+    background-color: #333;
+    -webkit-animation: seditorglint 1s infinite;
+    -ms-animation: seditorglint 1s infinite;
+    -o-animation: seditorglint 1s infinite;
+    animation: seditorglint 1s infinite;
 }
 .seditor-view .selection * {
     background-color: blue;
