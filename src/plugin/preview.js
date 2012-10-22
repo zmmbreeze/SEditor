@@ -8,7 +8,7 @@
  * add options:
  *      {
  *          viewHtml: '<div class="seditor-view"></div>',
- *          viewWhenFocus: false,
+ *          viewWhenFirstFocus: false,
  *          viewWidth: self.$text.width(),
  *          selectionClass: 'selection',
  *          selectionSingleClass: 'selection-single',
@@ -126,7 +126,7 @@ SEditor.usePlugin('preview', function() {
             // wrap textarea & setup z-index
             editor.$text
                 // data-preview for mark
-                .wrap('<div style="position:relative;float:left;" data-preview-wrap="true"></div>')
+                .wrap('<div style="position:relative;" data-preview-wrap="true"></div>')
                 .css({
                     position: 'relative',
                     zIndex: 2
@@ -157,10 +157,10 @@ SEditor.usePlugin('preview', function() {
                 updateWidth(editor, width);
             });
 
-            // setup viewWhenFocus
+            // setup viewWhenFirstFocus
             //      default is true
-            if (!option.viewWhenFocus) {
-                $text.focus(function() {
+            if (!option.viewWhenFirstFocus) {
+                $text.one('focus', function() {
                     showPreview(editor);
                 });
             }

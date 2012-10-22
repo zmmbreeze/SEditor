@@ -275,8 +275,8 @@ var TextApi = (function() {
         var o = textApi.selection,
             n = textApi.getSelection();
         if (!o || (o.start !== n.start) || (o.end !== n.end)) {
-            textApi.editor.fire('selectionChange');
             textApi.selection = n;
+            textApi.editor.fire('selectionChange');
         }
     }
     /**

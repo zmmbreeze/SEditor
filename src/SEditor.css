@@ -65,3 +65,16 @@
             list-style: none;
             width: 100%;
         }
+
+/* @module: seditor-tip */
+.seditor-tip {
+    height: 20px;
+    line-height: 20px;
+    text-indent: 1em;
+    font-size: 12px;
+    color: #333;
+    background-color: #f5f5f5;
+    border:1px solid #d3d3d3;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+}

@@ -90,6 +90,7 @@ SEditor.usePlugin('fullscreen', function() {
         title: SEditor.i18n.fullscreen,      // option
         hasButton: true,    // option
         init: function(editor, option) {
+            // update width height when window resize
             $win.resize(Util.buffer(function() {
                 if (editor.isFullscreen) {
                     updateWH(editor);

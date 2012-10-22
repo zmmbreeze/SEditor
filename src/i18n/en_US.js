@@ -21,5 +21,6 @@ SEditor.i18n = {
     colorGreen: 'green',
     colorYellow: 'yellow',
     fullscreen: 'Fullscreen',
-    unfullscreen: 'Cancel fullscreen'
+    unfullscreen: 'Cancel fullscreen',
+    fullscreenTip: 'Enter fullscreen mod!'
 };

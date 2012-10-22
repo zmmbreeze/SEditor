@@ -19,13 +19,12 @@ var SEditor = (function() {
          * @param {string} selector textarea's jquery selector
          * @param {object} option
          *                      changeTimeout
-         *                      wrapHtml
-         *                      viewHtml
-         *                      linkHtml
+         *                      wrapHtml => '<div id="{v}" class="seditor"></div>'
+         *                      buttonsHtml => '<div class="seditor-buttons"></div>'
+         *                      tipHtml => '<div class="seditor-tip"></div>'
          *                      width   => default is parent's width
          *                      selectionPrefix => default is '<span class="selection">'
          *                      selectionSuffix => default is '</span>'
-         *                      selectionSelector => default is '.selection'
          *
          */
         Klass = Event.$extend(function(supr, selector, option) {
@@ -93,10 +92,14 @@ var SEditor = (function() {
         if (width == null) {
             return this.$text.outerWidth();
         } else {
-            var textWidth = width - (this.$text.outerWidth() - this.$text.width());
+            var $text = this.$text,
+                $buttons = this.$buttons,
+                $tip = this.$tip,
+                textWidth = width - ($text.outerWidth() - $text.width());
             // calculate (outerWidth - width) first
-            this.$buttons.width(width - (this.$buttons.outerWidth() - this.$buttons.width()));
-            this.$text.width(textWidth);
+            $buttons.width(width - ($buttons.outerWidth() - $buttons.width()));
+            $text.width(textWidth);
+            $tip.width(width - ($tip.outerWidth() - $tip.width()));
             // fire event
             this.fire('widthChange', width, textWidth);
             return this;
@@ -113,6 +116,23 @@ var SEditor = (function() {
             // fire event
             this.fire('heightChange', height, textHeight);
             return this;
+        }
+    });
+
+    Klass.$methods('tip', function(supr, tipMsg, clickCallBack) {
+        if (tipMsg) {
+            var self = this;
+            self.$tip.html(tipMsg);
+            self.$tip.unbind('click.seditor');
+            if (clickCallBack) {
+                self.$tip.one('click.seditor', function(e) {
+                    clickCallBack.call(this, self, e);
+                    self.$tip.html('');
+                });
+            }
+            return this;
+        } else {
+            return this.$tip.html();
         }
     });
 
@@ -144,17 +164,20 @@ var SEditor = (function() {
     Klass.$methods('_loadHtml', function(supr) {
         var self = this,
             option = self.option,
-            wrapHtml, linkHtml, w;
+            wrapHtml, buttonsHtml, tipHtml, w;
         self._UUID();
 
         // load html
         wrapHtml = option.wrapHtml || '<div id="{v}" class="seditor"></div>',
-        linkHtml = option.linkHtml || '<div class="seditor-buttons"></div>';
+        buttonsHtml = option.buttonsHtml || '<div class="seditor-buttons"></div>';
+        tipHtml = option.tipHtml || '<div class="seditor-tip"></div>';
         self.$text.wrap(Util.format(wrapHtml, self.id));
         self.$all = self.$text.parent();
         self.$all.css('position', 'relative');
-        self.$buttons = $(linkHtml);
+        self.$buttons = $(buttonsHtml);
         self.$text.before(self.$buttons);
+        self.$tip = $(tipHtml);
+        self.$tip.appendTo(self.$all);
 
         // setup width
         w = option.width || self.$all.parent().width();
@@ -262,10 +285,10 @@ var SEditor = (function() {
 
         // setup button
         if (p.hasButton) {
-            var linkHtml = '<a href="javascript:void 0;" title="{title}" data-operation="seditor{name}" class="seditor-buttons-{name}">{title}</a>',
+            var buttonHtml = '<a href="javascript:void 0;" title="{title}" data-operation="seditor{name}" class="seditor-buttons-{name}">{title}</a>',
                 $button;
-            linkHtml = Util.format(linkHtml, {name: name, title: p.title});
-            $button = $(linkHtml);
+            buttonHtml = Util.format(buttonHtml, {name: name, title: p.title});
+            $button = $(buttonHtml);
             this.$buttons.append($button);
             p.$button = $button;
 

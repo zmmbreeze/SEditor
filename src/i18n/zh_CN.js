@@ -20,5 +20,6 @@ SEditor.i18n = {
     colorGreen: '绿色',
     colorYellow: '黄色',
     fullscreen: '全屏',
-    unfullscreen: '取消全屏'
+    unfullscreen: '取消全屏',
+    fullscreenTip: '点击此处或是右上角可以进入全屏模式！'
 };
