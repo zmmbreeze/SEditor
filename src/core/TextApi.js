@@ -249,18 +249,20 @@ var TextApi = (function() {
             this.editor = editor;
         },
         arraySlice = Array.prototype.slice,
-        klassify = function(method) {
+        klassify = function(method, noTextChange) {
             return function() {
                 var args = arraySlice.call(arguments, 0),
                     re;
                 args.unshift(this.textarea);
                 re = method.apply(null, args);
-                this.editor.fire('textChange', this.editor);
+                if (!noTextChange) {
+                    this.editor.fire('textChange', this.editor);
+                }
                 return re;
             };
         };
 
-    Klass.prototype.getSelection = klassify(getSelection);
+    Klass.prototype.getSelection = klassify(getSelection, true);
     Klass.prototype.deleteText = klassify(deleteText);
     Klass.prototype.deleteSelectedText = klassify(deleteSelectedText);
     Klass.prototype.extractSelectedText = klassify(extractSelectedText);

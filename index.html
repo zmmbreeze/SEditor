@@ -21,7 +21,28 @@ And by opposing end them.
 [font=Comic Sans MS][color=green]哈姆雷特：[/color][/font]毁灭, 这是个必答之问题:
 是否应默默的忍受坎苛命运之无情打击,
 还是应与深如大海之无涯苦难奋然为敌,
-并将其克服。</textarea>
+并将其克服。
+
+[bold]Tex公式输入[/bold]
+行内公式：($ a + 1 $)
+块公式：($$ \lim_{n \to \infty}  \frac{ x_n-x_{n-1} }{ y_n-y_{n-1} }= a  $$)</textarea>
+
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        jax: ["input/TeX", "output/HTML-CSS"],
+        extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js","TeX/noUndefined.js"],
+        tex2jax: {
+            inlineMath: [ ["($", "$)"] ],
+            displayMath: [ ["($$","$$)"] ],
+            skipTags: ["script","noscript","style","textarea"],
+            processEscapes: true,
+            processEnvironments: true,
+            preview: "TeX"
+        },
+        showProcessingMessages: false
+    });
+    </script>
+    <script src="./src/other/mathjax-2.1/MathJax.js"></script>
     <script src="./src/jquery.1.6.4.js"></script>
     <script src="./src/core/UBB.js"></script>
     <script src="./src/core/TextApi.js"></script>
@@ -42,6 +63,7 @@ And by opposing end them.
     <script src="./src/plugin/video.js"></script>
     <script src="./src/plugin/preview.js"></script>
     <script src="./src/plugin/fullscreen.js"></script>
+    <script src="./src/plugin/mathjax.js"></script>
     <script>
     var editor = new SEditor('#editor');
     editor.width(600);
