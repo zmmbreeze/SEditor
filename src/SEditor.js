@@ -178,6 +178,14 @@ var SEditor = (function() {
         self.$text.before(self.$buttons);
         self.$tip = $(tipHtml);
         self.$tip.appendTo(self.$all);
+        // wrap textarea & setup z-index
+        self.$text
+            // data-preview for mark
+            .wrap('<div style="position:relative;" data-preview-wrap="true"></div>')
+            .css({
+                position: 'relative',
+                zIndex: 2
+            });
 
         // setup width
         w = option.width || self.$all.parent().width();
@@ -272,6 +280,15 @@ var SEditor = (function() {
                 self.buttonMenu.hide();
             }
         });
+    });
+
+    Klass.$methods('_initAutoComplete', function(supr) {
+        var self = this;
+        if (self._initedAutoComplete) {
+            return;
+        }
+        self._initedAutoComplete = true;
+        self.on('textChange', function(){});
     });
 
     Klass.$methods('_loadPlugin', function(supr, name, plugin) {

@@ -17,7 +17,7 @@ SEditor.usePlugin(
                 // this is dom
                 editor.textApi.replaceSelectedText(function(selection) {
                     return Util.wrapTextByLine(selection.text, '[bold]', '[/bold]');
-                });
+                }, 6);
             }
         };
     },

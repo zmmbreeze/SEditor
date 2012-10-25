@@ -30,7 +30,7 @@ var TextApi = (function() {
     'use strict';
     var UNDEF = 'undefined';
     var getSelection, setSelection, deleteSelectedText, deleteText, insertText;
-    var replaceSelectedText, surroundSelectedText, extractSelectedText, collapseSelection, insertCaret;
+    var replaceSelectedText, surroundSelectedText, extractSelectedText, collapseSelection, insertCaret, getCaretPosition;
 
     // Trio of isHost* functions taken from Peter Michaux's article:
     // http://peter.michaux.ca/articles/feature-detection-state-of-the-art-browser-scripting
@@ -72,7 +72,8 @@ var TextApi = (function() {
             start: start,
             end: end,
             length: end - start,
-            text: v.slice(start, end)
+            text: v.slice(start, end),
+            all: v
         };
     }
 
@@ -169,6 +170,97 @@ var TextApi = (function() {
         return;
     }
 
+    // getCaretPosition
+    if (isHostObject(document, 'selection') && isHostMethod(document.selection, 'createRange')) {
+        getCaretPosition = function(el) {
+            $(el).focus();
+            var range = document.selection.createRange(),
+                elementOffset = $(el).offset();
+            range.collapse(false);
+            return {
+                left: range.boundingLeft - elementOffset.left,
+                top: range.boundingTop - elementOffset.top + el.scrollTop
+            };
+        };
+    } else {
+        getCaretPosition = function(el) {
+            var $textDiv = $(el).prev('[data-type="textDiv"]'),
+                caretSpan = '<span>1</span>',
+                $caretSpan,
+                sel,
+                val,
+                offset,
+                elementOffset,
+                scroll;
+            if(!$textDiv.length) {
+                var textDivHTML = '<div data-type="textDiv" style="'+
+                                  'position: absolute;' +
+                                  'z-index: -999;' +
+                                  'overflow: hidden;' +
+                                  'visiable: hidden;' +
+                                  'opacity: 0;' +
+                                  'white-space: pre-wrap;' +
+                                  'word-wrap: break-word;' +
+                                  '"></div>',
+                    style = [
+                        'fontFamily',
+                        'fontSize',
+                        'fontWeight',
+                        'fontVariant',
+                        'fontStyle',
+                        'line-height',
+                        'text-align',
+                        'outline',
+                        'paddingTop',
+                        'paddingRight',
+                        'paddingLeft',
+                        'paddingBottom',
+                        'marginTop',
+                        'marginRight',
+                        'marginBottom',
+                        'marginLeft',
+                        'borderTopStyle',
+                        'borderTopWidth',
+                        'borderRightStyle',
+                        'borderRightWidth',
+                        'borderBottomStyle',
+                        'borderBottomWidth',
+                        'borderLeftStyle',
+                        'borderLeftWidth'
+                    ];
+                $textDiv = $(textDivHTML);
+                $(el).before($textDiv);
+                $.each(style, function(i, n){
+                    $textDiv.css(n, $(el).css(n));
+                });
+            }
+
+            scroll = el.scrollHeight > $(el).innerHeight() ? 'scroll':'';
+            $textDiv.css({
+                'width': $(el).css('width'),
+                'height': $(el).css('height'),
+                'overflow-y': scroll
+            });
+            $(el).focus();
+            sel = getSelection(el);
+            if (sel.start != sel.end) {
+                val = el.value;
+                el.value = val.slice(0, sel.start) + val.slice(sel.end);
+            }
+            setSelection(el, 0, sel.start);
+            sel = getSelection(el);
+            collapseSelection(el, false);
+            $textDiv.html(sel.text + caretSpan);
+            $caretSpan = $textDiv.children('span:last');
+            offset = $caretSpan.offset();
+            elementOffset = $(el).offset();
+            return {
+                left: offset.left - elementOffset.left,
+                top: offset.top - elementOffset.top - el.scrollTop
+            };
+        };
+    }
+
     // Clean up
     getBody().removeChild(testTextArea);
 
@@ -222,15 +314,20 @@ var TextApi = (function() {
      *                               function (selection) {
      *                                  return selection.text.slice(1);
      *                               }
+     * @param {number} length sel.start change index
      */
-    replaceSelectedText = function(el, text) {
+    replaceSelectedText = function(el, text, length) {
         var sel = getSelection(el),
             val = el.value,
             caretIndex;
         text = typeof text === 'string' ? text : text(sel);
         el.value = val.slice(0, sel.start) + text + val.slice(sel.end);
-        caretIndex = sel.start + text.length;
-        setSelection(el, caretIndex, caretIndex);
+        if(length) {
+            setSelection(el, sel.start + length, sel.end + length);
+        } else {
+            caretIndex = sel.start + text.length;
+            setSelection(el, sel.start, caretIndex);
+        }
     };
 
     surroundSelectedText = function(el, before, after) {
@@ -270,6 +367,8 @@ var TextApi = (function() {
     Klass.prototype.insertText = klassify(insertText);
     Klass.prototype.replaceSelectedText = klassify(replaceSelectedText);
     Klass.prototype.surroundSelectedText = klassify(surroundSelectedText);
+    Klass.prototype.getCaretPosition = klassify(getCaretPosition);
+
     /**
      * start detect selectionChange event
      */
