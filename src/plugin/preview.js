@@ -50,6 +50,19 @@ SEditor.usePlugin('preview', function() {
                 Util.scrollYTo($view, $selections);
                 break;
             }
+            // TODO
+            /*
+            var s = editor.textApi.getCaretPosition();
+            $('#pos').text('top:'+s.top+', left:'+s.left);
+            var $caret = $('#caret');
+            if(!$caret.length){
+                $caret = $('<span id="caret"></span>').prependTo($('#editor').parent());
+            }
+            $caret.css({top:s.top, left:s.left, position:'absolute', zIndex:5, backgroundColor:'red', width:'20px', height: '5px'});
+            $('#editor').focus();
+            */
+
+
             // fire event
             editor.fire('previewUpdate', editor.$view);
         }
@@ -134,14 +147,6 @@ SEditor.usePlugin('preview', function() {
         init: function(editor, option) {
             option.selectionClass = option.selectionClass || 'selection';
             option.selectionSingleClass = option.selectionSingleClass || 'selection-single';
-            // wrap textarea & setup z-index
-            editor.$text
-                // data-preview for mark
-                .wrap('<div style="position:relative;" data-preview-wrap="true"></div>')
-                .css({
-                    position: 'relative',
-                    zIndex: 2
-                });
             originalWidth = option.viewWidth || 400;
 
             // setup view div
