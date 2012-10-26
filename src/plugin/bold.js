@@ -13,11 +13,16 @@ SEditor.usePlugin(
                 // this === editor
             },
             */
+            autoComplete: {start:'[bold]', end:'[/bold]'},
             click: function(editor) {
                 // this is dom
+                var sel = editor.textApi.getSelection();
                 editor.textApi.replaceSelectedText(function(selection) {
                     return Util.wrapTextByLine(selection.text, '[bold]', '[/bold]');
-                }, 6);
+                });
+                if(sel.length === 0) {
+                    editor.textApi.insertCaret(sel.start+6);
+                }
             }
         };
     },

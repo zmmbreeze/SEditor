@@ -184,7 +184,8 @@ var TextApi = (function() {
         };
     } else {
         getCaretPosition = function(el) {
-            var $textDiv = $(el).prev('[data-type="textDiv"]'),
+            var $el = $(el),
+                $textDiv = $el.prev('[data-type="textDiv"]'),
                 caretSpan = '<span>1</span>',
                 $caretSpan,
                 sel,
@@ -229,19 +230,19 @@ var TextApi = (function() {
                         'borderLeftWidth'
                     ];
                 $textDiv = $(textDivHTML);
-                $(el).before($textDiv);
+                $el.before($textDiv);
                 $.each(style, function(i, n){
-                    $textDiv.css(n, $(el).css(n));
+                    $textDiv.css(n, $el.css(n));
                 });
             }
 
-            scroll = el.scrollHeight > $(el).innerHeight() ? 'scroll':'';
+            scroll = el.scrollHeight > $el.innerHeight() ? 'scroll':'';
             $textDiv.css({
-                'width': $(el).css('width'),
-                'height': $(el).css('height'),
+                'width': $el.css('width'),
+                'height': $el.css('height'),
                 'overflow-y': scroll
             });
-            $(el).focus();
+            el.focus();
             sel = getSelection(el);
             if (sel.start != sel.end) {
                 val = el.value;
@@ -253,7 +254,7 @@ var TextApi = (function() {
             $textDiv.html(sel.text + caretSpan);
             $caretSpan = $textDiv.children('span:last');
             offset = $caretSpan.offset();
-            elementOffset = $(el).offset();
+            elementOffset = $el.offset();
             return {
                 left: offset.left - elementOffset.left,
                 top: offset.top - elementOffset.top - el.scrollTop
@@ -314,20 +315,15 @@ var TextApi = (function() {
      *                               function (selection) {
      *                                  return selection.text.slice(1);
      *                               }
-     * @param {number} length sel.start change index
      */
-    replaceSelectedText = function(el, text, length) {
+    replaceSelectedText = function(el, text) {
         var sel = getSelection(el),
             val = el.value,
             caretIndex;
         text = typeof text === 'string' ? text : text(sel);
         el.value = val.slice(0, sel.start) + text + val.slice(sel.end);
-        if(length) {
-            setSelection(el, sel.start + length, sel.end + length);
-        } else {
-            caretIndex = sel.start + text.length;
-            setSelection(el, sel.start, caretIndex);
-        }
+        caretIndex = sel.start + text.length;
+        setSelection(el, caretIndex, caretIndex);
     };
 
     surroundSelectedText = function(el, before, after) {
@@ -367,7 +363,7 @@ var TextApi = (function() {
     Klass.prototype.insertText = klassify(insertText);
     Klass.prototype.replaceSelectedText = klassify(replaceSelectedText);
     Klass.prototype.surroundSelectedText = klassify(surroundSelectedText);
-    Klass.prototype.getCaretPosition = klassify(getCaretPosition);
+    Klass.prototype.getCaretPosition = klassify(getCaretPosition, true);
 
     /**
      * start detect selectionChange event

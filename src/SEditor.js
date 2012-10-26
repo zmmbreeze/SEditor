@@ -282,15 +282,6 @@ var SEditor = (function() {
         });
     });
 
-    Klass.$methods('_initAutoComplete', function(supr) {
-        var self = this;
-        if (self._initedAutoComplete) {
-            return;
-        }
-        self._initedAutoComplete = true;
-        self.on('textChange', function(){});
-    });
-
     Klass.$methods('_loadPlugin', function(supr, name, plugin) {
         // generate plugin
         var p = plugin();
@@ -329,6 +320,7 @@ var SEditor = (function() {
 //@import "plugin/color.js";
 //@import "plugin/ul.js";
 //@import "plugin/ol.js";
+//@import "plugin/autoComplete.js";
 //@import "plugin/preview.js";
 //@import "plugin/fullscreen.js";
 

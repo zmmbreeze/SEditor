@@ -1,6 +1,7 @@
 @import "./plugin/preview.css";
 @import "./plugin/color.css";
 @import "./plugin/buttons.css";
+@import "./plugin/autoComplete.css";
 
 /* @module: seditor textarea */
 .seditor {
