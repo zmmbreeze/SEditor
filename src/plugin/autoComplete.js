@@ -28,7 +28,7 @@ SEditor.usePlugin('autoComplete', function() {
         var val = editor.textApi.getSelection();
         if(val.length === 0) {
             var befText = val.all.slice(val.end-1, val.end);
-            if(befText === '[' || befText === '【') {
+            if(befText === '[' || befText === '［' || befText === '【') {
                 if(!isMenuOn) {
                     showMenu(editor);
                     autoCompleteStart = val.end - 1;
